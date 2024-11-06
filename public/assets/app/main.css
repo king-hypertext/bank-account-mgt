@@ -1,0 +1,188 @@
+:root,
+[data-bs-theme=light] {
+    --bd-bg-color: #EAEBED;
+    --sidebar-bg-color: #003366;
+}
+
+/* [data-bs-theme=dark] {
+    --bd-bg-color: #2f3135;
+    --sidebar-bg-color: #061e36;
+} */
+
+body {
+    height: 100vh;
+    background-color: var(--bd-bg-color);
+}
+
+body.login {
+    background-color: #003366;
+    color: #fff;
+    display: flex;
+    place-items: center;
+    place-content: center;
+}
+
+.login>.container {
+    max-width: 400px !important;
+}
+
+.sidebar {
+    height: 100%;
+    background-color: var(--sidebar-bg-color);
+    width: 100%;
+    max-width: 320px !important;
+    top: 60px;
+}
+
+.main {
+    position: relative;
+    display: flex;
+    flex: auto;
+    flex-direction: column;
+    -ms-flex-direction: column;
+    position: relative;
+    display: block;
+    justify-items: center;
+    margin-left: 280px;
+}
+
+.nav-item>a.nav-link:is(:hover, :active) {
+    background-color: #fff;
+    color: #003366 !important;
+}
+
+.dropdown {
+    border: 0 !important;
+
+}
+
+.dropdown-menu.dropdown-menu-end {
+    margin-left: -20px !important;
+    overflow: hidden;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-menu a:hover {
+    background-color: #335272 !important;
+    color: #fff;
+}
+
+.form-outline .form-control,
+.form-control,
+.form-select {
+    /* border: 2px solid transparent !important; */
+    /* transition: all .3s ease-in-out; */
+}
+
+.form-outline .form-control:active,
+.form-outline .form-control:focus,
+.form-control:focus,
+.form-select:focus {
+    /* border: 2px solid var(--bs-primary) !important; */
+    /* box-shadow: none; */
+    /* transition: all .3s ease-in-out; */
+}
+
+/* text divider */
+.divider {
+    display: block;
+    text-align: center;
+    margin: 1rem 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.divider .divider-text {
+    position: relative;
+    display: inline-block;
+    font-size: 0.8rem;
+    padding: 0rem 1rem;
+}
+
+.divider .divider-text i {
+    font-size: 1rem;
+}
+
+.divider .divider-text:before,
+.divider .divider-text:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 100vw;
+    border-top: 1px solid rgba(67, 89, 113, 0.2);
+}
+
+.divider .divider-text:before {
+    right: 100%;
+}
+
+.divider .divider-text:after {
+    left: 100%;
+}
+
+.divider.text-start .divider-text {
+    padding-left: 0;
+}
+
+.divider.text-end .divider-text {
+    padding-right: 0;
+}
+
+.divider.text-start-center .divider-text {
+    left: -25%;
+}
+
+.divider.text-end-center .divider-text {
+    right: -25%;
+}
+
+.divider.divider-dotted .divider-text:before,
+.divider.divider-dotted .divider-text:after {
+    border-style: dotted;
+    border-width: 0 1px 1px;
+    border-color: rgba(67, 89, 113, 0.2);
+}
+
+.divider.divider-dashed .divider-text:before,
+.divider.divider-dashed .divider-text:after {
+    border-style: dashed;
+    border-width: 0 1px 1px;
+    border-color: rgba(67, 89, 113, 0.2);
+}
+
+.divider.divider.divider-secondary .divider-text:before,
+.divider.divider.divider-secondary .divider-text:after {
+    border-color: #8592a3;
+}
+
+.divider.divider.divider-success .divider-text:before,
+.divider.divider.divider-success .divider-text:after {
+    border-color: #71dd37;
+}
+
+.divider.divider.divider-info .divider-text:before,
+.divider.divider.divider-info .divider-text:after {
+    border-color: #03c3ec;
+}
+
+.divider.divider.divider-warning .divider-text:before,
+.divider.divider.divider-warning .divider-text:after {
+    border-color: #ffab00;
+}
+
+.divider.divider.divider-danger .divider-text:before,
+.divider.divider.divider-danger .divider-text:after {
+    border-color: #ff3e1d;
+}
+
+.divider.divider.divider-dark .divider-text:before,
+.divider.divider.divider-dark .divider-text:after {
+    border-color: #233446;
+}
+
+.divider.divider.divider-gray .divider-text:before,
+.divider.divider.divider-gray .divider-text:after {
+    border-color: rgba(67, 89, 113, 0.1);
+}
+
+/* end styles for text divider */
