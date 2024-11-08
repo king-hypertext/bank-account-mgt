@@ -1,7 +1,7 @@
 <aside class="sidebar">
     <ul class="nav mb-auto p-3">
         <li class="nav-menu">
-            <a href="{{ route('account.create', [$location ?? 1]) }}" class="nav-menu-link" data-mdb-ripple-init
+            <a href="{{ route('account.create', $account_location->id) }}" class="nav-menu-link" data-mdb-ripple-init
                 data-mdb-ripple-color="light">
                 <span class="d-flex align-items-center">
                     <i class="bx bx-grid-alt"></i>
@@ -10,7 +10,7 @@
             </a>
         </li>
         <li class="nav-menu">
-            <a href="{{ route('account.index', [$location ?? 1]) }}" class="nav-menu-link " data-mdb-ripple-init
+            <a href="{{ route('account.home', $account_location->id) }}" class="nav-menu-link " data-mdb-ripple-init
                 data-mdb-ripple-color="light">
                 <span class="d-flex align-items-center">
                     <i class='bx bx-list-ul'></i>
@@ -19,7 +19,8 @@
             </a>
         </li>
         <li class="nav-menu">
-            <a href="#" class="nav-menu-link " data-mdb-ripple-init data-mdb-ripple-color="light">
+            <a href="{{ route('entries.index', $account_location->id) }}" class="nav-menu-link " data-mdb-ripple-init
+                data-mdb-ripple-color="light">
                 <span class="d-flex align-items-center">
                     <i class='bx bx-money'></i>
                 </span>
@@ -27,12 +28,12 @@
             </a>
         </li>
         <li class="nav-menu">
-            <a href="{{ route('account.transfers', [$location ?? 1]) }}" class="nav-menu-link " data-mdb-ripple-init
+            <a href="{{ route('transfers.index', $account_location->id) }}" class="nav-menu-link " data-mdb-ripple-init
                 data-mdb-ripple-color="light">
                 <span class="d-flex align-items-center">
                     <i class="fas fa-exchange-alt"></i>
                 </span>
-                internal transfer
+                transfers
             </a>
         </li>
     </ul>

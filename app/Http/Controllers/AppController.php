@@ -6,6 +6,7 @@ use App\Models\AccountLocation;
 use App\Models\AccountStatus;
 use App\Models\AccountType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AppController extends Controller
 {
@@ -27,34 +28,64 @@ class AppController extends Controller
     }
     public function storeLocation(Request $request)
     {
-        $validated =  $request->validate([
-            'ref' => 'nullable|string|max:255',
-            'account_location' => 'unique:account_locations,name',
+        $request->validate([
+            'account_number' => 'required|string|max:255',
+            'location' => 'required|unique:account_locations,name',
             'name' => 'required|string|max:255',
             'bank_name' => 'required|string|max:255',
-            'account_name' => 'nullable|string|max:255',
             'account_type' => 'required|exists:account_types,id',
             'account_status' => 'required|exists:account_statuses,id',
             'account_description' => 'nullable|string|max:255',
             'account_address' => 'required|string|max:255',
             'initial_amount' => 'nullable|numeric',
             'created_at' => 'date'
+        ], [
+            'location.unique' => 'Location already exists.',
+            'location.required' => 'Account location is required.',
+            'bank_name.required' => 'Bank name is required.',
+            'name.required' => 'Account name is required.',
+            'account_description.max' => 'Account description cannot be more than 255 characters.',
+            'created_at.date' => 'account creation date should be a valid date.',
         ]);
         $account_location = AccountLocation::create([
-            'name' => $validated['account_location'],
+            'name' => $request->location,
         ]);
         $account_location->accounts()->create([
-            'ref' => $validated['ref'],
-            'name' => $validated['name'],
-            'bank_name' => $validated['bank_name'],
-            'account_name' => $validated['account_name'],
-            'account_type_id' => $validated['account_type'],
-            'account_status_id' => $validated['account_status'],
-            'account_description' => $validated['account_description'],
-            'account_address' => $validated['account_address'],
-            'initial_amount' => $validated['initial_amount'],
-            'created_at' => $validated['created_at'] ?? now(),
+            'account_number' => $request->account_number,
+            'bank_name' => $request->bank_name,
+            'name' => $request->name,
+            'account_type_id' => $request->account_type,
+            'account_status_id' => $request->account_status,
+            'account_description' => $request->account_description,
+            'account_address' => $request->account_address,
+            'initial_amount' => $request->initial_amount,
+            'balance' => $request->initial_amount,
+            'created_at' => $request->created_at ?? now(),
         ]);
         return redirect()->to(route('account.home', $account_location->id));
     }
+    // public function create() {}
+    // public function store(int $account_location, Request $request)
+    // {
+    //     dd($request);
+    //     $request->validate([
+    //         'ref' => 'required|string|max:255',
+    //         'location' => 'required|unique:account_locations,name',
+    //         'name' => 'required|string|max:255',
+    //         'bank_name' => 'required|string|max:255',
+    //         'account_type' => 'required|exists:account_types,id',
+    //         'account_status' => 'required|exists:account_statuses,id',
+    //         'account_description' => 'nullable|string|max:255',
+    //         'account_address' => 'required|string|max:255',
+    //         'initial_amount' => 'nullable|numeric',
+    //         'created_at' => 'date'
+    //     ], [
+    //         'location.unique' => 'Location already exists.',
+    //         'location.required' => 'Account location is required.',
+    //         'bank_name.required' => 'Bank name is required.',
+    //         'name.required' => 'Account name is required.',
+    //         'account_description.max' => 'Account description cannot be more than 255 characters.',
+    //         'created_at.date' => 'account creation date should be a valid date.',
+    //     ]);
+    // }
 }

@@ -4,19 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Account extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
-        'name',
+        'account_number',
         'bank_name',
-        'ref',
-        'account_name',
+        'name',
+        'balance',
         'account_address',
         'initial_amount',
         'account_description',
         'account_location_id',
+        'currency',
         'account_type_id',
         'account_status_id',
     ];
@@ -35,5 +37,13 @@ class Account extends Model
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
+    }
+    public function entries()
+    {
+        return $this->hasMany(Entry::class);
+    }
+    public function transfers()
+    {
+        return $this->hasMany(Transfer::class);
     }
 }

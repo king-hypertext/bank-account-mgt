@@ -13,16 +13,18 @@ return new class extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('account_location_id')->constrained();
-            $table->string('ref');
+            $table->foreignId('account_location_id')->constrained()->onDelete('cascade');
+            $table->string('account_number')->unique('account_number');
             $table->string('name');
             $table->string('bank_name');
-            $table->string('account_name');
             $table->foreignId('account_type_id')->constrained();
             $table->foreignId('account_status_id')->constrained();
             $table->string('account_address')->nullable();
             $table->decimal('initial_amount', 15, 2)->default(0)->nullable();
+            $table->decimal('balance', 15, 2)->default(0);
+            $table->string('currency', 6)->default('GHS');
             $table->text('account_description')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

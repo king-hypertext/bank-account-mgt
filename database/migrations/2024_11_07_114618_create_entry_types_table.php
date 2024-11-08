@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('account_locations', function (Blueprint $table) {
+        Schema::create('entry_types', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique('location');
-            $table->softDeletes();
+            $table->string('type', 55)->comment('debit or credit');
             $table->timestamps();
         });
     }
@@ -24,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('account_locations');
+        Schema::dropIfExists('entry_types');
     }
 };

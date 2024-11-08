@@ -1,6 +1,6 @@
 @extends('layout.index')
 @section('content')
-@use(Carbon\Carbon)
+    @use(Carbon\Carbon)
     <nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary my-3 shadow-0 position-sticky"
         style="top: 60px;z-index: 50;">
         <div class="container-fluid d-flex justify-content-between">
@@ -25,79 +25,134 @@
     <div class="card shadow-1-soft">
         <div class="card-body">
             <h5 class="card-title text-capitalize mb-4">create bank account</h5>
-            <div class="list-group">
-                <!-- Add recent activity items here -->
-            </div>
-            <form action="" method="POST" enctype="multipart/form-data">
+            @if ($errors->any())
+                <div class="alert alert-danger" role="alert">
+                    <ul class="list-unstyled mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            <form id="create-account-form" action="{{ route('account.store', $account_location->id) }}" method="POST">
                 <div class="row mb-3">
-                    <label for="ref" class="col-sm-2 col-form-label text-uppercase">ref</label>
+                    <label for="account_number" class="col-sm-2 col-form-label text-uppercase">account number</label>
                     <div class="col-sm-10">
-                        <input type="ref" class="form-control" id="ref">
+                        <input autofocus required type="text" value="{{ @old('account_number') }}"
+                            class="form-control @error('account_number') is-invalid @enderror" id="account_number"
+                            name="account_number" />
+                        @error('account_number')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
                 <div class="row mb-3">
                     <label for="bank_namme" class="col-sm-2 col-form-label text-uppercase">bank namme</label>
                     <div class="col-sm-10">
-                        <input type="bank_namme" class="form-control" id="bank_namme">
+                        <input required type="bank_namme" class="form-control @error('bank_namme') is-invalid @enderror"
+                            id="bank_namme" name="bank_name" value="{{ @old('bank_name') }}" />
+                        @error('bank_name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <label for="account_name" class="col-sm-2 col-form-label text-uppercase">account name</label>
+                    <label for="name" class="col-sm-2 col-form-label text-uppercase">account name</label>
                     <div class="col-sm-10">
-                        <input type="account_name" class="form-control" id="account_name">
+                        <input required type="name" class="form-control @error('name') is-invalid @enderror"
+                            id="name" name="name" value="{{ @old('name') }}" />
+                        @error('name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
                 <div class="row mb-3">
                     <label for="account_type" class="col-sm-2 col-form-label text-uppercase">account type</label>
                     <div class="col-auto">
-                        <select name="account_type" class="form-select" id="account_type">
-                            {{-- {{-- @forelse ($categories as $category) --}}
-                            <option value="">savings</option>
-                            <option value="">current</option>
-                            {{-- @empty 
-                        @endforelse --}}
+                        <select required name="account_type" class="form-select @error('account_type') is-invalid @enderror"
+                            id="account_type">
+                            @forelse ($account_types as $account_type)
+                                <option value="{{ $account_type->id }}">{{ $account_type->type }}</option>
+                            @empty
+                            @endforelse
                         </select>
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <label for="account_address" class="col-form-label text-uppercase col-sm-2 pt-0">account address</label>
+                    <label for="account_address" class="col-form-label text-uppercase col-sm-2 pt-0">account
+                        address</label>
                     <div class="col-sm-10">
-                        <input type="account_address" class="form-control" id="account_address" />
+                        <input required type="account_address"
+                            class="form-control @error('account_address') is-invalid @enderror" id="account_address"
+                            name="account_address" value="{{ @old('account_address') }}" />
+                        @error('account_address')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
-                </div> 
+                </div>
                 <div class="row mb-3">
-                    <label for="initial_amount" class="col-form-label text-uppercase col-sm-2 pt-0">initial amount</label>
+                    <label for="initial_amount" class="col-form-label text-uppercase col-sm-2 pt-0">initial
+                        amount</label>
                     <div class="col-sm-10">
-                        <input type="initial_amount" class="form-control" id="initial_amount" />
+                        <input required type="number" step="0.01" value="0.00"
+                            class="form-control @error('initial_amount') is-invalid @enderror" id="initial_amount"
+                            name="initial_amount" />
+                        @error('initial_amount')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
                 <fieldset class="row mb-3">
-                    <label for="status" class="col-form-label text-uppercase col-sm-2 pt-0">status</label>
+                    <label for="account_status" class="col-form-label text-uppercase col-sm-2 pt-0">status</label>
                     <div class="col-auto">
                         <div class="mb-3">
-                            <select class="form-select select2" name="status" id="status">
-                                {{-- {{-- @forelse ($districts as $district) --}}
-                                <option value="">open</option>
-                                <option value="">close</option>
-                                {{-- @empty 
-                            @endforelse --}}
+                            <select required class="form-select @error('account_status') is-invalid @enderror"
+                                name="account_status" id="account_status">
+                                @forelse ($account_statuses as $account_status)
+                                    <option value="{{ $account_status->id }}">{{ $account_status->status }}</option>
+                                @empty
+                                @endforelse
                             </select>
                         </div>
 
                     </div>
                 </fieldset>
                 <fieldset class="row mb-3">
-                    <label for="date" class="col-form-label text-uppercase col-sm-2 pt-0">date</label>
+                    <label for="created_at" class="col-form-label text-uppercase col-sm-2 pt-0">date</label>
                     <div class="col-sm-10">
-                        <input type="date" value="{{ now()->format('Y-m-d') }}" class="form-control" name="date"
-                            id="date" placeholder="" />
+                        <input required type="date" value="{{ now()->format('Y-m-d') }}"
+                            class="form-control @error('created_at') is-invalid @enderror" name="created_at" id="created_at"
+                            placeholder="" />
+                        @error('created_at')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </fieldset>
+                <div class="row mb-3">
+                    <label for="account_description" class="col-form-label text-uppercase col-sm-2 pt-0">notes and
+                        attachments</label>
+                    <div class="col-sm-10">
+                        <textarea name="account_description" class="form-control @error('account_description') is-invalid @enderror"
+                            id="account_description" rows="3"></textarea>
+                        @error('account_description')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                @csrf
                 <div class="d-flex justify-content-end mb-3">
-
-                    <button type="button" class="btn btn-primary">save</button>
+                    <button type="submit" class="btn btn-primary">create</button>
                 </div>
             </form>
         </div>
     </div>
+@endsection
+@section('script')
+    <script>
+        const form = document.getElementById('create-account-form');
+        form && form.addEventListener('submit', function(e) {
+            e.submitter.classList.add('disabled');
+            return 1;
+        });
+    </script>
 @endsection

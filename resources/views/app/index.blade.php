@@ -26,17 +26,18 @@
 </style>
 
 <body>
-    <div class="container-fluid flex">
+    <div class="container flex">
         <div class="row">
-            <h6 class="text-center fw-bold text-uppercase">Accounts</h6>
+            <h6 class="text-center fw-bold text-uppercase">Account locations</h6>
             @forelse ($account_locations as $location)
-                <div class="col-md-6 gy-2">
+                <div class="col-md-6 gy-2 w-100">
                     <a href="{{ route('account.home', $location->id) }}">
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="card-title fw-bold text-center">{{ $location->name }}</h4>
-                                <h6 class="mb-0 fs-5">$120,900.00</h6>
-                                <p class="card-start mb-0 pb-0 fw-semibold">Balance</p>
+                                <h6 class="mb-0 fs-5 text-nowrap">
+                                    {{ 'GHS ' . number_format($location->accounts->sum('balance'), 2) }}</h6>
+                                <p class="card-start mb-0 pb-0 fw-semibold">Account Balances</p>
                             </div>
                         </div>
                     </a>

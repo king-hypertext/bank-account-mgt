@@ -20,17 +20,14 @@ function onDOMContentLoaded() {
     }, 1000);
 
     const SIDEBAR = select('aside.sidebar');
-    const nav_heigth = select('header nav');
+    const nav_heigth = select('header ul');
     const SIDEBAR_TOGGLE = select('.sidebar-toggle');
+    select('.main').style.top = nav_heigth.offsetHeight + 'px';
     SIDEBAR.style.top = nav_heigth.clientHeight + 'px';
     const currentUrl = window.location.href;
     const stripURL = currentUrl.replace(/(#.*|[\?].*)/g, '');
     const TargetLink = selectAll('.sidebar ul>li.nav-menu a.nav-menu-link');
-    console.log(TargetLink, stripURL);
-    
     [...TargetLink].forEach(e => {
-        console.log(e);
-        
         if (e.href == stripURL) {
             e.classList.add('active');
             e.parentElement.classList.add('active');
@@ -38,5 +35,9 @@ function onDOMContentLoaded() {
             e.classList.remove('active');
             e.parentElement.classList.remove('active');
         }
+    });
+    $('.select2').select2({
+        width: '100%',
+        placeholder: '',
     });
 }

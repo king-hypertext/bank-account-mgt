@@ -1,46 +1,34 @@
-<header>
-    <nav class="navbar navbar-expand-sm navbar-dark bg-primary" style="z-index: 1092;">
-        <div class="container-fluid">
-            <div class="dropdown">
-                <a class="btn btn-primary dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                    data-mdb-dropdown-init data-mdb-ripple-init aria-expanded="false">
-                    Location
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                    <li><a class="dropdown-item" href="#">Action</a></li>
-                    <li><a class="dropdown-item" href="#">Another action</a></li>
-                    <li><a class="dropdown-item" href="#">Something else here</a></li>
-                </ul>
-            </div>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{-- {{ route('home') }} --}}"><i class="fas fa-home"></i> Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{-- {{ route('transactions') }} --}}"><i class="fas fa-exchange-alt"></i>
-                            Transactions</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
-                            role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-user"></i> {{-- {{ Auth::user()->name }} --}}
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{{-- {{ route('logout') }} --}}"
-                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                Logout
-                            </a>
-                        </div>
-                    </li>
-                </ul>
-            </div>
+<header class="bg-body-tertiary fixed-top">
+    <ul class="nav" style="z-index: 1092;">
+        <div class="container">
+            <ul class="navbar-nav flex-row p-2 justify-content-between">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('l.list') }}"><i class="fas fa-home"></i> Home</a>
+                </li>
+                <li class="nav-item">
+                    <a id="signout" href="#" class="nav-link" title="click to logout">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Sign out</span>
+                    </a>
+                </li>
+                <script>
+                    $(document).ready(function() {
+                        $('a#signout').click(function() {
+                            $.ajax({
+                                url: "{{ route('logout') }}",
+                                method: 'POST',
+                                data: {
+                                    _token: '{{ csrf_token() }}'
+                                },
+                                success: function() {
+                                    window.location.replace("{{ route('login') }}");
+                                }
+                            });
+                            return false; // to prevent the default link behavior from occurring
+                        });
+                    });
+                </script>
+            </ul>
         </div>
-    </nav>
+    </ul>
 </header>

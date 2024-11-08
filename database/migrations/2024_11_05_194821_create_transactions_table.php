@@ -12,7 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transactions', function (Blueprint $table) {
-            $table->id();
+            // $table->id();
+            // $table->string('ref')->nullable();
+            // $table->foreignId('from_account_id')->constrained();
+            // $table->foreignId('to_account_id')->constrained();
+            // $table->decimal('amount', 10, 2);
+            // $table->foreignId('transaction_type_id')->constrained();
+            // $table->text('description')->nullable();
+            // $table->index(['account_id']);
+            // $table->boolean('is_reconciled')->default(false);
+            // $table->softDeletes();
             $table->timestamps();
         });
     }

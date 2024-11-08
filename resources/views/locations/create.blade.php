@@ -42,11 +42,20 @@
                     {{ session('error') }}
                 </div>
             @endif
+            @if ($errors->any())
+                <div class="alert alert-danger" role="alert">
+                    <ul class="list-unstyled mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <form id="account-form" action="{{ route('l.store') }}" method="POST">
                 <div class="row mb-3">
                     <label for="location" class="col-sm-2 col-form-label text-uppercase">location</label>
                     <div class="col-sm-10">
-                        <input autofocus required type="text"
+                        <input autofocus required type="text" value="{{ @old('location') }}"
                             class="form-control @error('location') is-invalid @enderror" id="location" name="location">
                         @error('location')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -54,32 +63,31 @@
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <label for="ref" class="col-sm-2 col-form-label text-uppercase">ref</label>
+                    <label for="account_number" class="col-sm-2 col-form-label text-uppercase">account number</label>
                     <div class="col-sm-10">
-                        <input required type="text" class="form-control @error('ref') is-invalid @enderror"
-                            id="ref" name="ref" />
-                        @error('ref')
+                        <input required type="text" value="{{ @old('account_number') }}"
+                            class="form-control @error('account_number') is-invalid @enderror" id="account_number" name="account_number" />
+                        @error('account_number')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <label for="bank_namme" class="col-sm-2 col-form-label text-uppercase">bank namme</label>
+                    <label for="bank_namme" class="col-sm-2 col-form-label text-uppercase">bank name</label>
                     <div class="col-sm-10">
                         <input required type="bank_namme" class="form-control @error('bank_namme') is-invalid @enderror"
-                            id="bank_namme" name="bank_name">
+                            id="bank_namme" name="bank_name" value="{{ @old('bank_name') }}" />
                         @error('bank_name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <label for="account_name" class="col-sm-2 col-form-label text-uppercase">account name</label>
+                    <label for="name" class="col-sm-2 col-form-label text-uppercase">account name</label>
                     <div class="col-sm-10">
-                        <input required type="account_name"
-                            class="form-control @error('account_name') is-invalid @enderror" id="account_name"
-                            name="account_name">
-                        @error('account_name')
+                        <input required type="name" class="form-control @error('name') is-invalid @enderror"
+                            id="name" name="name" value="{{ @old('name') }}" />
+                        @error('name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -102,7 +110,7 @@
                     <div class="col-sm-10">
                         <input required type="account_address"
                             class="form-control @error('account_address') is-invalid @enderror" id="account_address"
-                            name="account_address" />
+                            name="account_address" value="{{ @old('account_address') }}"/>
                         @error('account_address')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
