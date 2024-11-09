@@ -30,11 +30,11 @@
         <div class="row">
             <h6 class="text-center fw-bold text-uppercase">Account locations</h6>
             @forelse ($account_locations as $location)
-                <div class="col-md-6 gy-2 w-100">
+                <div class="col-md-6 gy-2 w-50">
                     <a href="{{ route('account.home', $location->id) }}">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="card-title fw-bold text-center">{{ $location->name }}</h4>
+                                <h4 class="card-title fw-bold text-center text-uppercase">{{ $location->name }}</h4>
                                 <h6 class="mb-0 fs-5 text-nowrap">
                                     {{ 'GHS ' . number_format($location->accounts->sum('balance'), 2) }}</h6>
                                 <p class="card-start mb-0 pb-0 fw-semibold">Account Balances</p>

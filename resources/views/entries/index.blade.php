@@ -18,28 +18,35 @@
                 </ol>
             </nav>
             <div class="d-flex">
+                @if ($entries->isNotEmpty())
+                    <button title="Reconcile Entries" class="btn btn-success reconcile-entries mx-1" disabled>
+                        reconcile <i class="fas fa-check ms-1"></i>
+                    </button>
+                @endif
+
                 <a class="btn btn-info" href="{{ route('entries.create', $account_location->id) }}">create entry</a>
             </div>
         </div>
     </nav>
     <div class="card shadow-1-soft">
-        <div class="card-body">
-            {{-- {{ $accounts }} --}}
-            {{-- <h5 class="card-title text-capitalize mb-4">create bank account</h5> --}}
+        <div class="card-body p-1">
             <div class="table-responsive">
-                <table class="table align-middle">
+                <table class="table align-middle" id="table-list-entry">
                     <thead class="text-uppercase">
                         <tr>
                             <th>
-                                {{-- <div class="form-check">
-                                    <input readonly class="form-check-input" id="check-all-accounts" type="checkbox" />
-                                </div> --}}
+                                @if ($entries->isNotEmpty())
+                                    <button title="delete selected entries" class="btn btn-danger delete-entries py-1 px-2"
+                                        disabled>
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                @endif
                             </th>
                             <th scope="col">bank name</th>
-                            <th scope="col">account number</th>
-                            <th scope="col">account type</th>
-                            <th scope="col">debit</th>
-                            <th scope="col">credit</th>
+                            {{-- <th scope="col">account number</th> --}}
+                            {{-- <th scope="col">account type</th> --}}
+                            <th scope="col">debit(ghs)</th>
+                            <th scope="col">credit(ghs)</th>
                             <th scope="col">description</th>
                             <th scope="col">ref. number</th>
                             <th scope="col">date</th>
@@ -49,39 +56,53 @@
                     <tbody>
                         @forelse ($entries as $entry)
                             <tr
-                                class="border-bottom border-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
-                                <td>
-                                    <div class="form-check-inline">
-                                        <input class="form-check-input check-account" value="{{ $entry->id }}"
-                                            type="checkbox" />
+                                class="border-bottom table-{{ $entry->is_reconciled ? 'secondary' : '' }} border-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
+                                <td class=" m-0">
+
+                                    <div class="form-check-inline m-0">
+                                        <input class="form-check-input check-account"
+                                            {{ $entry->is_reconciled ? 'disabled' : '' }}
+                                            value="{{ $entry->is_reconciled ? '' : $entry->id }}" type="checkbox" />
                                     </div>
                                 </td>
-                                <td>{{ $entry->account->bank_name }}</td>
-                                <td>{{ $entry->account->account_number }}</td>
-                                <td>{{ $entry->account->accountType->type }}</td>
+                                <td class="text-uppercase">{{ $entry->account->bank_name }}</td>
+                                {{-- <td>{{ $entry->account->account_number }}</td> --}}
+                                {{-- <td>{{ $entry->account->accountType->type }}</td> --}}
                                 <td>
-                                    <span class="text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
+                                    <span
+                                        class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
                                         @if ($entry->entryType->type === 'debit')
                                             {{ '-' . $entry->amount }}
                                         @endif
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
+                                    <span
+                                        class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
                                         @if ($entry->entryType->type === 'credit')
-                                            {{ $entry->amount }}
+                                            {{ '+' . $entry->amount }}
                                         @endif
                                     </span>
                                 </td>
                                 <td>{{ $entry->description }}</td>
                                 <td>{{ $entry->reference_number }}</td>
-                                <td>{{ Carbon::parse($entry->created_at)->format('Y-m-d') }}</td>
+                                <td class="text-nowrap">{{ Carbon::parse($entry->created_at)->format('Y-m-d') }}</td>
                                 <td>
-                                    <a title="view" class="btn" href="#"><i class="fas fa-eye"></i></a>
-                                    <a title="edit" class="btn" href="#"><i class="fas fa-pen-to-square"></i></a>
+                                    <div class="d-flex">
+                                        <a title="edit" class="btn btn-warning p-1 mx-1"
+                                            href="{{ route('entries.edit', [$account_location->id, $entry->id]) }}">
+                                            <i class="fas fa-pen-to-square"></i>
+                                        </a>
+                                        @if (!$entry->is_reconciled)
+                                            <button title="delete" data-id="{{ $entry->id }}"
+                                                data-url="{{ route('entries.destroy', [$account_location->id, $entry->id]) }}"
+                                                class="btn btn-danger p-1 mx-1 delete-entry" href="#">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
-
                         @empty
                         @endforelse
                     </tbody>
@@ -91,10 +112,110 @@
         </div>
     </div>
     <script>
-        var ids = [];
-        $('input[type="checkbox"].check-account').on('change', function(e) {
-            e.currentTarget.checked ? ids.push($(this).val()) : ids.pop($(this).val());
-            console.log(ids);
+        // var ids = [];
+        // $('input[type="checkbox"].check-account').on('change', function(e) {
+        //     e.currentTarget.checked ? ids.push($(this).val()) : ids.pop($(this).val());
+        //     console.log(ids);
+        // });
+        $(document).ready(function() {
+            $('.delete-entry').click(function(e) {
+                e.preventDefault();
+                var id = $(this).data('id'),
+                    url = $(this).data('url');
+
+                if (confirm('Delete this entry?')) {
+                    $.ajax({
+                        url,
+                        type: 'DELETE',
+                        success: function(response) {
+                            window.open(response.url, '_self');
+                        },
+                        error: function(xhr, status, error) {
+                            console.log(xhr.responseText);
+                        }
+                    });
+                }
+            });
+            // Initialize button state
+            updateButtonState();
+
+            function updateButtonState() {
+                const checkboxes = $('table#table-list-entry input[type="checkbox"].check-account:checked');
+                const reconcileButton = $('button.reconcile-entries'); // Replace with your button selector
+                const deleteButton = $('button.delete-entries'); // Replace with your button selector
+
+                if (checkboxes.length > 0) {
+                    reconcileButton.removeAttr('disabled');
+                    deleteButton.removeAttr('disabled');
+                } else {
+                    reconcileButton.attr('disabled', 'disabled');
+                    deleteButton.attr('disabled', 'disabled');
+                }
+                if (checkboxes.length > 1) {
+                    deleteButton.removeAttr('disabled');
+                } else {
+                    deleteButton.attr('disabled', 'disabled');
+                }
+            }
+            var entries = []; // Declare array outside function scope
+
+            // Initialize button state
+            updateButtonState();
+
+            // Listen for checkbox changes
+            $('table#table-list-entry input[type="checkbox"].check-account').change(function() {
+                const checkboxId = $(this).val();
+                const isChecked = $(this).is(':checked');
+
+                if (isChecked) {
+                    entries.push(checkboxId);
+                } else {
+                    entries = entries.filter(id => id !== checkboxId);
+                }
+                updateButtonState();
+                console.log(entries);
+
+            });
+            $('button.reconcile-entries').click(function() {
+                // Reconcile entries
+                if (!confirm('Confirm Reconcile Entries')) {
+                    return false;
+                }
+                $.ajax({
+                    url: "",
+                    type: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        entries: entries
+                    },
+                    success: function(response) {
+                        window.open(response.url, '_self');
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(xhr.responseText);
+                    }
+                });
+            });
+            $('button.delete-entries').click(function() {
+                // Delete entries
+                if (!confirm('Confirm Delete Entries')) {
+                    return false;
+                }
+                $.ajax({
+                    url: "",
+                    type: 'DELETE',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        entries: entries
+                    },
+                    success: function(response) {
+                        window.open(response.url, '_self');
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(xhr.responseText);
+                    }
+                });
+            });
         });
     </script>
 @endsection

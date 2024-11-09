@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('date');
             $table->decimal('amount', 10, 2);
             $table->text('description')->nullable();
-            $table->string('status', 100)->nullable();
+            $table->boolean('is_reconciled')->default(false);
             $table->string('reference_number', 55)->nullable();
             $table->softDeletes();
             $table->timestamps();

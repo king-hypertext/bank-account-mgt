@@ -16,6 +16,7 @@ Route::post('login', [AuthController::class, 'authenticate'])->name('authenticat
 Route::middleware(['auth'])->group(function () {
     Route::permanentRedirect('/', 'l');
     Route::get('l', [AppController::class, 'index'])->name('l.list');
+    Route::put('l/{id}', [AppController::class, 'update'])->name('l.update');
     Route::get('l/create', [AppController::class, 'createLocation'])->name('l.create');
     Route::post('l/store', [AppController::class, 'storeLocation'])->name('l.store');
     Route::prefix('l/{location}')->group(function () {
@@ -23,6 +24,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('account', AccountController::class);
         Route::resource('entries', EntryController::class);
         Route::resource('transfers', TransferController::class);
+        Route::post('entries.reconcile', [EntryController::class, 'reconcile'])->name('entries.reconcile');
     });
     Route::post('l/{location}/clone', [AccountController::class, 'cloneAccounts'])->name('l.clone');
     Route::post('logout', function (Request $request) {

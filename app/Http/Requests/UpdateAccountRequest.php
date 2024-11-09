@@ -11,7 +11,7 @@ class UpdateAccountRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,21 @@ class UpdateAccountRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'account_number' => 'required|unique:accounts,account_number,' . $this->account->id . ',id',
+            'bank_name' => 'required|string',
+            'name' => 'required|string',
+            'account_address' => 'required|string',
+            'initial_amount' => 'required|numeric',
+            'account_description' => 'nullable|string',
+            'account_type' => 'required|exists:account_types,id',
+            'account_status' => 'required|exists:account_statuses,id',
+            'created_at' => 'date'
+        ];
+    }
+    public function messages(): array
+    {
+        return [
+            'account_number.unique' => 'Account Number already exists',
         ];
     }
 }

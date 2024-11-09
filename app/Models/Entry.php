@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Entry extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
         'account_id',
         'entry_type_id',
@@ -15,8 +16,12 @@ class Entry extends Model
         'amount',
         'description',
         'reference_number',
-        'status',
+        'is_reconciled',
         'date'
+    ];
+    protected $casts = [
+        'date' => 'date',
+        'is_reconciled' => 'boolean'  // Assuming the column is of boolean type in the database table
     ];
     public function account()
     {
@@ -36,6 +41,6 @@ class Entry extends Model
     }
     public function scopeBelongsToAccounts($query, $accountIds)
     {
-        return $query->whereIn('account_id', $accountIds)->orderBy('created_at','desc')->get();
+        return $query->whereIn('account_id', $accountIds)->orderBy('created_at', 'desc')->get();
     }
 }

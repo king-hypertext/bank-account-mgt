@@ -10,7 +10,7 @@
                         <a href="#">{{ env('APP_NAME') }}</a>
                     </li>
                     <li class="breadcrumb-item text-uppercase">
-                        <a href="{{ route('account.index', $account_location->id) }}">accounts</a>
+                        <a href="{{ route('account.home', $account_location->id) }}">accounts</a>
                     </li>
                     <li class="breadcrumb-item text-uppercase">
                         <a href="#">
@@ -101,7 +101,7 @@
                     <label for="initial_amount" class="col-form-label text-uppercase col-sm-2 pt-0">initial
                         amount</label>
                     <div class="col-sm-10">
-                        <input required type="number" step="0.01" value="0.00"
+                        <input required type="number" step="0.01" value="{{ $account->initial_amount }}"
                             class="form-control @error('initial_amount') is-invalid @enderror" id="initial_amount"
                             name="initial_amount" />
                         @error('initial_amount')
@@ -122,7 +122,6 @@
                                 @endforelse
                             </select>
                         </div>
-
                     </div>
                 </fieldset>
                 <fieldset class="row mb-3">
@@ -148,6 +147,7 @@
                     </div>
                 </div>
                 @csrf
+                @method('PUT')
                 <div class="d-flex justify-content-end mb-3">
                     <button type="submit" class="btn btn-primary">update</button>
                 </div>

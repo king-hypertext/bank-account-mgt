@@ -157,9 +157,12 @@
             </div>
             <div class="col-md-10 main">
                 <div class="container mt-auto">
-                    <h3 class="h3 fs-4 mt-5 fw-bold text-uppercase">
-                        {{ $account_location->name }}
-                    </h3>
+                    <div class="d-flex mt-3 align-items-center justify-content-between">
+                        <h3 class="h3 fs-4 fw-bold text-uppercase">
+                            {{ $account_location->name }}
+                        </h3>
+                        <button class="btn btn-info modify-account">modify</button>
+                    </div>
                     @yield('content')
                 </div>
             </div>
@@ -175,6 +178,168 @@
     <script type="text/javascript">
         $(document).ready(function() {
             $('.loader-overlay').hide();
+            // $('button.modify-account').click(function() {
+
+            //     const {
+            //         value: location_name
+            //     } = Swal.fire({
+            //         title: "Modfy Account Location Name",
+            //         input: "text",
+            //         inputLabel: "Enter Location Name",
+            //         inputValue: "{{ $account_location->name }}",
+            //         showCancelButton: true,
+            //         confirmButtonText: "Update",
+            //         cancelButtonText: "Cancel",
+            //         // showLoaderOnConfirm: true,
+            //         preConfirm: (location_name) => {
+            //             return new Promise((resolve) => {
+            //                 if (!location_name) {
+            //                     Swal.showValidationError("Location Name cannot be empty!");
+            //                 } else {
+            //                     resolve();
+            //                 }
+            //             });
+            //         },
+            //         allowOutsideClick: () =>!Swal.isLoading(),
+            //         inputValidator: (value) => {
+            //             if (!value) {
+            //                 return "input field cannot be empty!";
+            //             }
+            //         },
+            //         isConfirmed: (value) =>{
+            //             return new Promise((resolve) => {
+            //                 $.ajax({
+            //                     url: '/locations/' + '{{ $account_location->id }}',
+            //                     method: 'PUT',
+            //                     data: {
+            //                         location: location_name
+            //                     },
+            //                     success: function(response) {
+            //                         showSuccessAlert.fire({
+            //                             icon:'success',
+            //                             text: 'Account location updated successfully!',
+            //                             padding: '15px',
+            //                             width: 'auto'
+            //                         });
+            //                         setTimeout(() => {
+            //                             location.reload();
+            //                         }, 1500);
+            //                         resolve();
+            //                     },
+            //                     error: function(error) {
+            //                         showSuccessAlert.fire({
+            //                             icon: 'error',
+            //                             text: 'Failed to update account location. Please try again later.',
+            //                             padding: '15px',
+            //                             width: 'auto'
+            //                         });
+            //                         resolve();
+            //                     }
+            //                 });
+            //             });
+            //         }
+            //     });
+            //     if (location_name) {
+            //         console.log(location_name);
+
+            //         $.ajax({
+            //             url: "{{ route('l.update', $account_location->id) }}",
+            //             method: 'PUT',
+            //             data: {
+            //                 name: location_name
+            //             },
+            //             success: function(response) {
+            //                 if (response.success) {
+            //                     window.open(response.url, '_self');
+            //                 }
+            //             },
+            //             error: function(error) {
+            //                 return console.log(error);
+
+            //                 if (error.status === 422) {
+            //                     const errors = JSON.parse(error.responseText);
+            //                     let errorMessages = '';
+            //                     for (let key in errors) {
+            //                         errorMessages += errors[key][0] + '<br>';
+            //                     }
+            //                     showSuccessAlert.fire({
+            //                         icon: 'error',
+            //                         text: errorMessages,
+            //                         padding: '15px',
+            //                         width: 'auto'
+            //                     });
+            //                 }
+            //             }
+            //         });
+            //     }
+            // });
+            $('button.modify-account').click(function() {
+                const locationId = "{{ $account_location->id }}";
+                const updateUrl = "{{ route('l.update', $account_location->id) }}";
+
+                Swal.fire({
+                    title: "Modify Account Location Name",
+                    input: "text",
+                    inputLabel: "Enter Location Name",
+                    inputValue: "{{ $account_location->name }}",
+                    showCancelButton: true,
+                    confirmButtonText: "Update",
+                    cancelButtonText: "Cancel",
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return "Input field cannot be empty!";
+                        }
+                    },
+                    preConfirm: (locationName) => {
+                        $.ajax({
+                                url: updateUrl,
+                                method: 'PUT',
+                                data: {
+                                    name: locationName,
+                                    _token: '{{ csrf_token() }}',
+                                },
+                            })
+                            .done((response) => {
+                                if (response.success) {
+                                    window.open(response.url, '_self');
+                                    // showSuccessAlert.fire({
+                                    //     icon: 'success',
+                                    //     text: 'Account location updated successfully!',
+                                    //     padding: '15px',
+                                    //     width: 'auto'
+                                    // });
+                                    // setTimeout(() => {
+                                    //     location.reload();
+                                    // }, 1500);
+                                }
+                            })
+                            .fail((error) => {
+                                if (error.status === 422) {
+                                    const errors = error.responseJSON.errors;
+                                    // return console.log(errors);
+
+                                    let errorMessages = '';
+                                    for (let key in errors) {
+                                        errorMessages += errors[key][0];
+                                    }
+                                    showSuccessAlert.fire({
+                                        icon: 'error',
+                                        text: errorMessages,
+                                        padding: '15px',
+                                        width: 'auto'
+                                    });
+                                } else {
+                                    showSuccessAlert.fire({
+                                        icon: 'error',
+                                        text: 'Failed to update account location. Please try again later.',
+                                        padding: '15px',
+                                        width: 'auto'
+                                    });
+                                }
+                            });
+                    }
+                });
+            });
         });
         const showSuccessAlert = Swal.mixin({
             position: 'top-right',

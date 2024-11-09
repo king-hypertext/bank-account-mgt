@@ -19,7 +19,7 @@ class AccountController extends Controller
     public function index(int $location)
     {
         $account_location =  AccountLocation::findOrFail($location);
-        $accounts = $account_location->accounts;
+        $accounts = $account_location->accounts()->orderBy('created_at', 'DESC')->get();
         return view('accounts.index', compact('accounts', 'account_location'));
     }
 
@@ -82,9 +82,21 @@ class AccountController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateAccountRequest $request, Account $account)
+    public function update(int $location, UpdateAccountRequest $request, Account $account)
     {
-        //
+        $account->update([
+            'account_number' => $request->account_number,
+            'bank_name' => $request->bank_name,
+            'name' => $request->name,
+            'account_type_id' => $request->account_type,
+            'account_status_id' => $request->account_status,
+            'account_description' => $request->account_description,
+            'account_address' => $request->account_address,
+            'initial_amount' => $request->initial_amount,
+            'balance' => $request->initial_amount,
+            'created_at' => $request->created_at ?? now(),
+        ]);
+        return back()->with('success', 'Account updated successfully');
     }
 
     /**

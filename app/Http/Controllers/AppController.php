@@ -88,4 +88,20 @@ class AppController extends Controller
     //         'created_at.date' => 'account creation date should be a valid date.',
     //     ]);
     // }
+    public function update(int $id, Request $request)
+    {
+        $request->validate(
+            [
+                'name' => 'required|string|unique:account_locations,name',
+            ],
+            [
+                'name.unique' => 'The entered location already exists',
+            ]
+        );
+        $account = AccountLocation::findOrFail($id);
+        $account->update(['name' => $request->name]);
+        $url = redirect()->back()->with('success', 'Location name updated successfully')->getTargetUrl();
+        return response()->json(['success' => true, 'url' => $url]);
+        // return redirect()->route('account.home', $account->id);
+    }
 }

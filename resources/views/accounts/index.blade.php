@@ -18,9 +18,9 @@
                 </ol>
             </nav>
             <div class="d-flex">
-                <a class="btn btn-info clone-btn me-2" data-url="{{ route('l.clone', $account_location->id) }}"
+                <a class="btn btn-primary clone-btn me-2" data-url="{{ route('l.clone', $account_location->id) }}"
                     title="clone accounts">clone
-                    <i class="fa-regular fa-clone"></i>
+                    <i class="fa-regular fa-clone ms-1"></i>
                 </a>
                 <a class="btn btn-info" href="{{ route('account.create', $account_location->id) }}">add account</a>
             </div>
@@ -31,36 +31,32 @@
             {{-- {{ $accounts }} --}}
             {{-- <h5 class="card-title text-capitalize mb-4">create bank account</h5> --}}
             <div class="table-responsive">
-                <table class="table align-middle">
+                <table class="table align-middle text-uppercase">
                     <thead class="text-uppercase">
-                        <tr>
-                            <th>
-                                {{-- <div class="form-check">
-                                    <input readonly class="form-check-input" id="check-all-accounts" type="checkbox" />
-                                </div> --}}
-                            </th>
+                        <tr class="border-bottom border-info">
+                            <th>S/N</th>
                             <th scope="col">bank name</th>
                             <th scope="col">account number</th>
                             <th scope="col">account type</th>
                             <th scope="col">account status</th>
                             <th scope="col">balance</th>
+                            <th scope="col">date created</th>
                             <th scope="col">operations</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($accounts as $account)
-                            <tr>
+                            <tr
+                                class="{{ $account->accountStatus->status == 'closed' ? 'table-danger text-danger border-danger' : '' }}">
                                 <td>
-                                    <div class="form-check">
-                                        <input class="form-check-input check-account" value="{{ $account->id }}"
-                                            type="checkbox" />
-                                    </div>
+                                    {{ $loop->iteration }}
                                 </td>
                                 <td>{{ $account->bank_name }}</td>
                                 <td>{{ $account->account_number }}</td>
                                 <td>{{ $account->accountType->type }}</td>
                                 <td>{{ $account->accountStatus->status }}</td>
-                                <td>{{ $account->currency . ' ' . $account->balance }}</td>
+                                <td>{{ $account->currency . ' ' . number_format($account->balance, 2) }}</td>
+                                <td>{{ Carbon::parse($account->created_at)->format('Y-m-d') }}</td>
                                 <td>
                                     {{-- <a title="view" class="btn" href="#"><i class="fas fa-eye"></i></a> --}}
                                     <a title="edit" class="btn"
