@@ -12,7 +12,7 @@ class AppController extends Controller
 {
     public function index()
     {
-        $page_title = 'accounts';
+        $page_title = 'home';
         $account_locations = AccountLocation::all();
         if ($account_locations->isEmpty()) {
             return redirect()->to(route('l.create'));

@@ -63,6 +63,18 @@
         }
     }
 
+    @media print {
+        table tr th {
+            text-transform: uppercase !important;
+        }
+    }
+
+    table tr td:first-child,
+    table tr th:first-child {
+        text-align: left !important;
+        margin: auto !important;
+    }
+
     .sidebar {
         background-color: #000655;
         padding: 20px;
@@ -159,7 +171,7 @@
                 <div class="container mt-auto">
                     <div class="d-flex mt-3 align-items-center justify-content-between">
                         <h3 class="h3 fs-4 fw-bold text-uppercase">
-                            {{ $account_location->name }}
+                            {{ $account_location->name }} @yield('name')
                         </h3>
                         <button class="btn btn-info modify-account">modify</button>
                     </div>

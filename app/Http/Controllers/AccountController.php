@@ -20,7 +20,8 @@ class AccountController extends Controller
     {
         $account_location =  AccountLocation::findOrFail($location);
         $accounts = $account_location->accounts()->orderBy('created_at', 'DESC')->get();
-        return view('accounts.index', compact('accounts', 'account_location'));
+        $page_title = 'Accounts - ' . $account_location->name;
+        return view('accounts.index', compact('accounts', 'account_location', 'page_title'));
     }
 
     /**
@@ -41,7 +42,7 @@ class AccountController extends Controller
     public function store(int $location, StoreAccountRequest $request)
     {
         $account_location = AccountLocation::findOrFail($location);
-        $account_location->accounts()->create([
+        $account = $account_location->accounts()->create([
             'account_number' => $request->account_number,
             'bank_name' => $request->bank_name,
             'name' => $request->name,
@@ -53,15 +54,23 @@ class AccountController extends Controller
             'balance' => $request->initial_amount ?? 0,
             'created_at' => $request->created_at ?? now(),
         ]);
-        return redirect()->to(route('account.home', $location))->with('success', 'account created successfully');
+        $request->initial_amount > 0 && $account->updateBalance($request->initial_balance, 'credit');
+        $routeName = $request->has('exist') ? 'account.home' : 'account.create';
+        return redirect()->to(route($routeName, $location))->with('success', 'account created successfully');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Account $account)
+    public function show(int $location, Account $account)
     {
-        //
+        $page_title = 'account';
+        $account_location = AccountLocation::findOrFail($location);
+        if ($account->accountLocation->id !== $location) {
+            abort(403, 'Account does not belongs to this location.');
+        }
+        $account->load('entries');
+        return view('accounts.show', compact('account', 'account_location', 'page_title'));
     }
 
     /**
@@ -84,6 +93,9 @@ class AccountController extends Controller
      */
     public function update(int $location, UpdateAccountRequest $request, Account $account)
     {
+        if ($account->accountLocation->id !== $location) {
+            abort(403, 'Account does not belongs to this location.');
+        }
         $account->update([
             'account_number' => $request->account_number,
             'bank_name' => $request->bank_name,
@@ -96,15 +108,22 @@ class AccountController extends Controller
             'balance' => $request->initial_amount,
             'created_at' => $request->created_at ?? now(),
         ]);
+        $request->initial_amount > 0 && $account->updateBalance($request->initial_amount, 'credit');
         return back()->with('success', 'Account updated successfully');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Account $account)
+    public function destroy(int $location, Account $account)
     {
-        //
+        // return $account;
+        if ($account->accountLocation->id !== $location) {
+            abort(403, 'Account does not belongs to this location.');
+        }
+        $account->delete();
+        $url = back()->with('warning', 'Account deleted successfully')->getTargetUrl();
+        return response()->json(['success' => true, 'url' => $url]);
     }
     private function generateAccountNumber(): int
     {

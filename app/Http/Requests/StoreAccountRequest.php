@@ -29,13 +29,14 @@ class StoreAccountRequest extends FormRequest
             'account_status' => 'required|exists:account_statuses,id',
             'account_description' => 'nullable|string|max:255',
             'account_address' => 'required|string|max:255',
-            'initial_amount' => 'required|numeric',
+            'initial_amount' => 'required|numeric|min:0',
             'created_at' => 'date'
         ];
     }
     public function messages(): array
     {
         return [
+            'account_number' => 'Account number already exists in the database',
             'bank_name.required' => 'Bank name is required.',
             'name.required' => 'Account name is required.',
             'account_description.max' => 'Account description cannot be more than 255 characters.',

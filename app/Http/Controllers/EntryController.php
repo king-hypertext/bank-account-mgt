@@ -29,7 +29,7 @@ class EntryController extends Controller
         $page_title = 'create account';
         $account_location = AccountLocation::findOrFail($location);
         $entry_types = EntryType::all();
-        $accounts = $account_location->accounts;
+        $accounts = $account_location->openAccounts()->orderBy('updated_at', 'desc')->get();
         return view('entries.create', compact('account_location', 'page_title', 'entry_types', 'accounts'));
     }
 
@@ -44,7 +44,6 @@ class EntryController extends Controller
             'description' => $request->description,
             'amount' => $request->amount,
             'date' => $request->date,
-            'status' => $request->status,
             'reference_number' => $request->reference_number,
             'created_at' => $request->date ?? now(),
         ]);
@@ -78,13 +77,52 @@ class EntryController extends Controller
      */
     public function update(int $location, UpdateEntryRequest $request, Entry $entry)
     {
-        return $entry;
-        if ($entry->is_reconciled) {
-            $entry->update();
+        // return $entry;
+        if ($entry->account->accountLocation->id !== $location) {
+            abort(403, 'Account does not belongs to this location.');
         }
-        $entry->update();
-        $url = redirect()->back()->with('success', 'Entry updated successfully')->getTargetUrl();
-        return response()->json(['success' => true, 'url' => $url]);
+        // if ($entry->is_reconciled) {
+        //     $entry->update([
+        //         'entry_type' => $request->entry_type,
+        //         'description' => $request->description,
+        //         // 'amount' => $request->amount,
+        //         'date' => $request->date,
+        //         // 'reference_number' => $request->reference_number,
+        //         'updated_at' => $request->date ?? now(),
+        //     ]);
+        // } else {
+        //     $entry->update([
+        //         'entry_type_id' => $request->entry_type,
+        //         'description' => $request->description,
+        //         'amount' => $request->amount,
+        //         'date' => $request->date,
+        //         'reference_number' => $request->reference_number,
+        //         'updated_at' => $request->date ?? now(),
+        //     ]);
+        // }
+        // Reconciled entry update restrictions
+        if ($entry->is_reconciled) {
+            $fields = [
+                'entry_type' => $request->entry_type,
+                'description' => $request->description,
+                'date' => $request->date,
+                'updated_at' => $request->date ?? now(),
+            ];
+        } else {
+            $fields = [
+                'entry_type_id' => $request->entry_type,
+                'description' => $request->description,
+                'amount' => $request->amount,
+                'date' => $request->date,
+                'reference_number' => $request->reference_number,
+                'updated_at' => $request->date ?? now(),
+            ];
+        }
+        // Update entry
+        $entry->update($fields);
+
+        return redirect()->back()->with('success', 'Entry updated successfully');
+        // return response()->json(['success' => true, 'url' => $url]);
     }
 
     /**
@@ -92,16 +130,59 @@ class EntryController extends Controller
      */
     public function destroy(int $location, Request $request, Entry $entry)
     {
-        return $entry;
-        $entry->destroy($request->entries);
-        $url = redirect()->back()->with('success', 'Entries deleted successfully')->getTargetUrl();
+        // // Authorization check
+        // if ($location && $entry->account->accountLocation->id !== $location) {
+        //     abort(403, 'Account does not belong to this location.');
+        // }
+        $accountLocation = AccountLocation::find($location);
+        if (!$accountLocation) {
+            abort(404, 'Account location not found.');
+        }
+        // Delete single entry or multiple entries
+        $deletedCount = 0;
+        if ($request->filled('entries')) {
+            $entries = $request->input('entries');
+            Entry::destroy($entries);
+            $deletedCount = count($entries);
+        } else {
+            $entry->delete();
+            $deletedCount = 1;
+        }
+
+        // Return success response
+        $url = redirect()->back()->with('success', $deletedCount . ' entry/entries deleted successfully.')->getTargetUrl();
         return response()->json(['success' => true, 'url' => $url]);
     }
-    public function reconcile(int $location, Entry $entry)
+
+    public function reconcile(int $location, Request $request)
     {
-        return $entry;
-        $entry->update(['is_reconciled' => true]);
-        $url = redirect()->back()->with('success', 'Entry reconciled successfully')->getTargetUrl();
+        // Validation
+        $request->validate([
+            'entries' => 'required|array',
+            'entries.*' => 'exists:entries,id',
+        ]);
+
+        // Authorization
+        $accountLocation = AccountLocation::find($location);
+        if (!$accountLocation) {
+            abort(404, 'Account location not found.');
+        }
+        // Reconcile entries
+        $entry_ids = $request->input('entries');
+        Entry::whereIn('id', $entry_ids)
+            ->whereHas('account', function ($query) use ($location) {
+                $query->whereHas('accountLocation', function ($query) use ($location) {
+                    $query->where('id', $location);
+                });
+            })->get()->each(function ($entry) {
+                // dd($entry->amount, $entry->entryType->type, $entry->account);
+                $entry->account->updateBalance($entry->amount, $entry->entryType->type);
+                $entry->update(['is_reconciled' => true]);
+            });
+
+
+        // Return success response
+        $url = redirect()->back()->with('success', 'Entries reconciled successfully.')->getTargetUrl();
         return response()->json(['success' => true, 'url' => $url]);
     }
 }

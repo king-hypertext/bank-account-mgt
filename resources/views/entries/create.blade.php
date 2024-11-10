@@ -56,7 +56,7 @@
                 <div class="row mb-3">
                     <label for="amount" class="col-sm-2 col-form-label text-uppercase">amount</label>
                     <div class="col-sm-10">
-                        <input required type="number" step="0.01"
+                        <input required type="number" step="0.01" onfocus="this.select()"
                             class="form-control @error('amount') is-invalid @enderror" id="amount" name="amount"
                             value="{{ @old('amount') }}" />
                         @error('amount')
@@ -113,6 +113,7 @@
         const form = document.getElementById('create-entry');
         form && form.addEventListener('submit', function(e) {
             e.submitter.classList.add('disabled');
+            $('.loader-overlay').show().find('.loader-text').text('Processing...')
             return 1;
         });
     </script>

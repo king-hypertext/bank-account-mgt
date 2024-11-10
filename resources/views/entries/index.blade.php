@@ -29,19 +29,29 @@
         </div>
     </nav>
     <div class="card shadow-1-soft">
-        <div class="card-body p-1">
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <button id="excelButton" class="btn text-white me-1" data-mdb-ripple-init style="background-color: #438162;"
+                    title="Export table to excel" type="button">
+                    <i class="fas fa-print me-1"></i>
+                    Excel
+                </button>
+                <button id="pdfButton" class="btn text-white mx-1" data-mdb-ripple-init style="background-color: #ee4a60;"
+                    title="Save table as PDF" type="button">
+                    <i class="fas fa-file-pdf me-1"></i>
+                    PDF
+                </button>
+                <button id="printButton" class="btn text-white ms-1" data-mdb-ripple-init style="background-color: #44abff;"
+                    title="Click to print table" type="button">
+                    <i class="fas fa-print me-1"></i>
+                    print
+                </button>
+            </div>
             <div class="table-responsive">
-                <table class="table align-middle" id="table-list-entry">
+                <table class="table align-middle" id="table-entries">
                     <thead class="text-uppercase">
                         <tr>
-                            <th>
-                                @if ($entries->isNotEmpty())
-                                    <button title="delete selected entries" class="btn btn-danger delete-entries py-1 px-2"
-                                        disabled>
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                @endif
-                            </th>
+                            <th>S/N</th>
                             <th scope="col">bank name</th>
                             {{-- <th scope="col">account number</th> --}}
                             {{-- <th scope="col">account type</th> --}}
@@ -51,61 +61,73 @@
                             <th scope="col">ref. number</th>
                             <th scope="col">date</th>
                             <th scope="col">actions</th>
+                            <th>
+                                @if ($entries->isNotEmpty())
+                                    <button title="Delete selected entries" class="btn btn-danger delete-entries py-1 px-2"
+                                        disabled>
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                @endif
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($entries as $entry)
                             <tr
                                 class="border-bottom table-{{ $entry->is_reconciled ? 'secondary' : '' }} border-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
-                                <td class=" m-0">
-
-                                    <div class="form-check-inline m-0">
-                                        <input class="form-check-input check-account"
-                                            {{ $entry->is_reconciled ? 'disabled' : '' }}
-                                            value="{{ $entry->is_reconciled ? '' : $entry->id }}" type="checkbox" />
-                                    </div>
+                                <td>
+                                    {{ $loop->iteration }}
                                 </td>
                                 <td class="text-uppercase">{{ $entry->account->bank_name }}</td>
                                 {{-- <td>{{ $entry->account->account_number }}</td> --}}
                                 {{-- <td>{{ $entry->account->accountType->type }}</td> --}}
-                                <td>
-                                    <span
-                                        class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
-                                        @if ($entry->entryType->type === 'debit')
-                                            {{ '-' . $entry->amount }}
-                                        @endif
-                                    </span>
+                                <td class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
+                                    @if ($entry->entryType->type === 'debit')
+                                        {{ '-' . $entry->amount }}
+                                    @endif
                                 </td>
-                                <td>
-                                    <span
-                                        class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
-                                        @if ($entry->entryType->type === 'credit')
-                                            {{ '+' . $entry->amount }}
-                                        @endif
-                                    </span>
+                                <td class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
+                                    @if ($entry->entryType->type === 'credit')
+                                        {{ '+' . $entry->amount }}
+                                    @endif
                                 </td>
                                 <td>{{ $entry->description }}</td>
                                 <td>{{ $entry->reference_number }}</td>
                                 <td class="text-nowrap">{{ Carbon::parse($entry->created_at)->format('Y-m-d') }}</td>
                                 <td>
                                     <div class="d-flex">
-                                        <a title="edit" class="btn btn-warning p-1 mx-1"
+                                        <a title="Edit" class="btn text-warning p-1 mx-1"
                                             href="{{ route('entries.edit', [$account_location->id, $entry->id]) }}">
                                             <i class="fas fa-pen-to-square"></i>
                                         </a>
                                         @if (!$entry->is_reconciled)
-                                            <button title="delete" data-id="{{ $entry->id }}"
+                                            <button title="Delete" data-id="{{ $entry->id }}"
                                                 data-url="{{ route('entries.destroy', [$account_location->id, $entry->id]) }}"
-                                                class="btn btn-danger p-1 mx-1 delete-entry" href="#">
+                                                class="btn text-danger p-1 mx-1 delete-entry" href="#">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         @endif
+                                    </div>
+                                </td>
+                                <td class="m-0">
+                                    <div class="form-check-inline m-0">
+                                        <input class="form-check-input check-account" autocomplete="off"
+                                            {{ $entry->is_reconciled ? 'disabled' : '' }}
+                                            value="{{ $entry->is_reconciled ? '' : $entry->id }}" type="checkbox" />
                                     </div>
                                 </td>
                             </tr>
                         @empty
                         @endforelse
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="2" class="text-start">Totals:</th>
+                            <th id="total-debit"></th>
+                            <th id="total-credit"></th>
+                            <th colspan="4"></th>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
 
@@ -118,7 +140,7 @@
         //     console.log(ids);
         // });
         $(document).ready(function() {
-            $('.delete-entry').click(function(e) {
+            $('button.delete-entry').click(function(e) {
                 e.preventDefault();
                 var id = $(this).data('id'),
                     url = $(this).data('url');
@@ -127,6 +149,9 @@
                     $.ajax({
                         url,
                         type: 'DELETE',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
                         success: function(response) {
                             window.open(response.url, '_self');
                         },
@@ -140,7 +165,7 @@
             updateButtonState();
 
             function updateButtonState() {
-                const checkboxes = $('table#table-list-entry input[type="checkbox"].check-account:checked');
+                const checkboxes = $('table#table-entries input[type="checkbox"].check-account:checked');
                 const reconcileButton = $('button.reconcile-entries'); // Replace with your button selector
                 const deleteButton = $('button.delete-entries'); // Replace with your button selector
 
@@ -158,12 +183,8 @@
                 }
             }
             var entries = []; // Declare array outside function scope
-
-            // Initialize button state
-            updateButtonState();
-
             // Listen for checkbox changes
-            $('table#table-list-entry input[type="checkbox"].check-account').change(function() {
+            $('table#table-entries input[type="checkbox"].check-account').change(function() {
                 const checkboxId = $(this).val();
                 const isChecked = $(this).is(':checked');
 
@@ -182,11 +203,11 @@
                     return false;
                 }
                 $.ajax({
-                    url: "",
+                    url: "{{ route('entries.reconcile', $account_location->id) }}",
                     type: 'POST',
                     data: {
                         _token: "{{ csrf_token() }}",
-                        entries: entries
+                        entries
                     },
                     success: function(response) {
                         window.open(response.url, '_self');
@@ -202,11 +223,11 @@
                     return false;
                 }
                 $.ajax({
-                    url: "",
+                    url: "{{ route('entries.delete', $account_location->id) }}",
                     type: 'DELETE',
                     data: {
                         _token: "{{ csrf_token() }}",
-                        entries: entries
+                        entries
                     },
                     success: function(response) {
                         window.open(response.url, '_self');
@@ -215,6 +236,118 @@
                         console.log(xhr.responseText);
                     }
                 });
+            });
+            const ACCOUNTS_TABLE = new DataTable('#table-entries', {
+                responsive: true,
+                order: [
+                    [0, 'asc']
+                ],
+                columnDefs: [{
+                        targets: [6],
+                        orderable: false
+                    },
+                    {
+                        targets: [7],
+                        orderable: false
+                    }
+                ],
+                buttons: ['copy', 'excel', 'pdf', 'csv', 'print'],
+                footerCallback: function(row, data, start, end, display) {
+                    var api = this.api(),
+                        data;
+                    var intVal = function(i) {
+                        if (typeof i === 'string') {
+                            return i.replace(/[\$,]/g, '') * 1.00;
+                        } else if (typeof i === 'number') {
+                            return i;
+                        }
+                    };
+                    var total = api.column(5).data().reduce(function(a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0.00);
+                    var formatter = new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'GHS',
+                    });
+                    var debitTotal = api.column(2, {
+                        page: 'current'
+                    }).data().reduce(function(a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0.00);
+                    var creditTotal = api.column(3, {
+                        page: 'current'
+                    }).data().reduce(function(a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0.00);
+                    $(api.column(2).footer()).addClass('text-danger fw-semibold').html(debitTotal);
+                    $(api.column(3).footer()).addClass('text-success fw-semibold').html(creditTotal);
+                },
+                buttons: [{
+                        extend: 'excel',
+                        title: '{{ strtoupper($account_location->name) }} Entries   ',
+                        filename: 'entries.excel',
+                        text: '<i class="fas fa-print me-1"></i> excel',
+                        className: 'btn text-white ms-1',
+                        message: 'Printed on ' + new Date().toLocaleString(),
+                        attr: {
+                            "style": 'background-color: #438162;color: #fff',
+                            "data-mdb-ripple-init": '',
+                        },
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6]
+                        }
+                    },
+                    {
+                        extend: 'pdf',
+                        title: '{{ strtoupper($account_location->name) }} Entries   ',
+                        filename: 'entries.pdf',
+                        orientation: 'portrait',
+                        pageSize: 'A4',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6],
+                        },
+                        text: '<i class="fas fa-print me-1"></i> pdf',
+                        className: 'btn text-white ms-1',
+                        message: 'Printed on ' + new Date().toLocaleString(),
+                        attr: {
+                            "style": 'background-color: #ee4a60;color: #fff',
+                            "data-mdb-ripple-init": '',
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fas fa-print me-1"></i> print',
+                        className: 'btn text-white ms-1',
+                        title: '<span class="text-uppercase text-center"> {{ $account_location->name }} Entries </span>',
+                        pageSize: 'A4',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6],
+                        },
+                        orientation: 'portrait',
+                        message: 'Printed on ' + new Date().toLocaleString(),
+                        attr: {
+                            "style": 'background-color: #44abff;color: #fff',
+                            "data-mdb-ripple-init": '',
+                        }
+                    }
+                ],
+                language: {
+                    paginate: {
+                        first: 'First',
+                        previous: 'Prev',
+                        next: 'Next',
+                        last: 'Last',
+                    }
+                }
+            });
+            $('#pdfButton').on('click', function() {
+                ACCOUNTS_TABLE.button(1).trigger();
+            });
+            $('#excelButton').on('click', function() {
+                ACCOUNTS_TABLE.buttons(0).trigger();
+            });
+            $('#printButton').on('click', function() {
+                ACCOUNTS_TABLE.button(2).trigger();
             });
         });
     </script>

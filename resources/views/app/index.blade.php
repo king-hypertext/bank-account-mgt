@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="{{ asset('assets/mdb/css/mdb.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/app/main.css') }}" />
     <script src="{{ asset('assets/jquery/external/jquery.js') }}"></script>
-    <title>ACCOUNTS MANAGER | {{ $page_title ?? 'HOME' }}</title>
+    <title>ACCOUNTS MANAGER | {{ strtoupper($page_title) ?? 'HOME' }}</title>
 </head>
 <style>
     .flex {
@@ -28,16 +28,17 @@
 <body>
     <div class="container flex">
         <div class="row">
-            <h6 class="text-center fw-bold text-uppercase">Account locations</h6>
+            <h6 class="text-center fw-bold text-uppercase">Accounts locations & balances</h6>
             @forelse ($account_locations as $location)
-                <div class="col-md-6 gy-2 w-50">
+                <div class="col-md-4 gy-2 w-25">
                     <a href="{{ route('account.home', $location->id) }}">
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="card-title fw-bold text-center text-uppercase">{{ $location->name }}</h4>
-                                <h6 class="mb-0 fs-5 text-nowrap">
+                                <h6
+                                    class="mb-0 fs-5 text-nowrap {{ $location->accounts->sum('balance') < 0 ? 'text-danger' : 'text-success' }}">
                                     {{ 'GHS ' . number_format($location->accounts->sum('balance'), 2) }}</h6>
-                                <p class="card-start mb-0 pb-0 fw-semibold">Account Balances</p>
+                                <p class="card-start mb-0 pb-0 fw-semibold">Accounts Balances</p>
                             </div>
                         </div>
                     </a>

@@ -38,7 +38,7 @@
                 <div class="row mb-3">
                     <label for="account_number" class="col-sm-2 col-form-label text-uppercase">account number</label>
                     <div class="col-sm-10">
-                        <input autofocus required type="text" value="{{ @old('account_number') }}"
+                        <input autofocus required type="number" value="{{ @old('account_number') }}"
                             class="form-control @error('account_number') is-invalid @enderror" id="account_number"
                             name="account_number" />
                         @error('account_number')
@@ -47,7 +47,7 @@
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <label for="bank_namme" class="col-sm-2 col-form-label text-uppercase">bank namme</label>
+                    <label for="bank_namme" class="col-sm-2 col-form-label text-uppercase">bank name</label>
                     <div class="col-sm-10">
                         <input required type="bank_namme" class="form-control @error('bank_namme') is-invalid @enderror"
                             id="bank_namme" name="bank_name" value="{{ @old('bank_name') }}" />
@@ -141,7 +141,8 @@
                 </div>
                 @csrf
                 <div class="d-flex justify-content-end mb-3">
-                    <button type="submit" class="btn btn-primary">create</button>
+                    <input type="submit" name="exist" class="btn btn-info me-2" value="save & exit"></input>
+                    <button type="submit" class="btn btn-primary">save</button>
                 </div>
             </form>
         </div>
@@ -152,6 +153,7 @@
         const form = document.getElementById('create-account-form');
         form && form.addEventListener('submit', function(e) {
             e.submitter.classList.add('disabled');
+            $('.loader-overlay').show().find('.loader-text').text('Updating...')
             return 1;
         });
     </script>

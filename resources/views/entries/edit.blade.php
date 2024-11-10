@@ -59,9 +59,9 @@
                 <div class="row mb-3">
                     <label for="amount" class="col-sm-2 col-form-label text-uppercase">amount</label>
                     <div class="col-sm-10">
-                        <input {{ $entry->is_reconciled === true ? 'readonly' : '' }} required type="number" step="0.01"
-                            class="form-control @error('amount') is-invalid @enderror" id="amount" name="amount"
-                            value="{{ $entry->amount }}" />
+                        <input {{ $entry->is_reconciled === true ? 'readonly disabled' : '' }} required type="number"
+                            step="0.01" class="form-control @error('amount') is-invalid @enderror" id="amount"
+                            name="amount" value="{{ $entry->amount }}" />
                         @error('amount')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -82,7 +82,7 @@
                         number</label>
                     <div class="col-sm-10">
                         <div class="mb-3">
-                            <input {{ $entry->is_reconciled === true ? 'readonly' : '' }} type="number"
+                            <input {{ $entry->is_reconciled === true ? 'readonly disabled' : '' }} type="number"
                                 value="{{ $entry->reference_number ?? now()->format('Ymdhis') }}"
                                 class="form-control @error('reference_number') is-invalid @enderror" name="reference_number"
                                 id="reference_number" />
@@ -118,6 +118,7 @@
         const form = document.getElementById('edit-entry');
         form && form.addEventListener('submit', function(e) {
             e.submitter.classList.add('disabled');
+            $('.loader-overlay').show().find('.loader-text').text('Updating...')
             return 1;
         });
         $('textarea[name="description"]').val('{{ $entry->description }}')

@@ -23,6 +23,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [AccountController::class, 'index'])->name('account.home');
         Route::resource('account', AccountController::class);
         Route::resource('entries', EntryController::class);
+        Route::delete('delete-entries', [EntryController::class, 'destroy'])->name('entries.delete');
         Route::resource('transfers', TransferController::class);
         Route::post('entries.reconcile', [EntryController::class, 'reconcile'])->name('entries.reconcile');
     });

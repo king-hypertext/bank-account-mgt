@@ -101,7 +101,8 @@
                     <label for="initial_amount" class="col-form-label text-uppercase col-sm-2 pt-0">initial
                         amount</label>
                     <div class="col-sm-10">
-                        <input required type="number" step="0.01" value="{{ $account->initial_amount }}"
+                        <input required type="number" onfocus="this.select()" step="0.01"
+                            value="{{ @old('initial_amount') ?? $account->initial_amount }}"
                             class="form-control @error('initial_amount') is-invalid @enderror" id="initial_amount"
                             name="initial_amount" />
                         @error('initial_amount')
@@ -160,6 +161,7 @@
         const form = document.getElementById('edit-account-form');
         form && form.addEventListener('submit', function(e) {
             e.submitter.classList.add('disabled');
+            $('.loader-overlay').show().find('.loader-text').text('Updating...')
             return 1;
         });
     </script>

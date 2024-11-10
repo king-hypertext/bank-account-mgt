@@ -46,4 +46,13 @@ class Account extends Model
     {
         return $this->hasMany(Transfer::class);
     }
+    public function updateBalance(int|float $amount, string $type)
+    {
+        if ($type == 'debit') {
+            $this->balance -= $amount;
+        } elseif ($type == 'credit') {
+            $this->balance += $amount;
+        }
+        $this->save();
+    }
 }
