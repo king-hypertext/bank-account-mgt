@@ -12,20 +12,24 @@ class Entry extends Model
     protected $fillable = [
         'account_id',
         'entry_type_id',
-        'transaction_type_id',
         'amount',
         'description',
         'reference_number',
         'is_reconciled',
-        'date'
+        'is_transfer',
+        'value_date'
     ];
     protected $casts = [
-        'date' => 'date',
+        'value_date' => 'date',
         'is_reconciled' => 'boolean'  // Assuming the column is of boolean type in the database table
     ];
     public function account()
     {
         return $this->belongsTo(Account::class);  // Assuming Account Model has a foreign key 'account_id'
+    }
+    public function scopeEntriesToReconcile($query)
+    {
+        return $query->where('is_reconciled', false);  // Assuming the column is of boolean type in the database table
     }
     public function entryType()
     {

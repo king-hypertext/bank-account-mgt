@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AccountController;
-use App\Http\Controllers\AccountLocationController;
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EntryController;
@@ -16,6 +15,7 @@ Route::post('login', [AuthController::class, 'authenticate'])->name('authenticat
 Route::middleware(['auth'])->group(function () {
     Route::permanentRedirect('/', 'l');
     Route::get('l', [AppController::class, 'index'])->name('l.list');
+    Route::post('l/add', [AppController::class, 'store'])->name('l.new');
     Route::put('l/{id}', [AppController::class, 'update'])->name('l.update');
     Route::get('l/create', [AppController::class, 'createLocation'])->name('l.create');
     Route::post('l/store', [AppController::class, 'storeLocation'])->name('l.store');

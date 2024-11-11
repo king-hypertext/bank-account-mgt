@@ -24,8 +24,8 @@ class UpdateAccountRequest extends FormRequest
         return [
             'account_number' => 'required|unique:accounts,account_number,' . $this->account->id . ',id',
             'bank_name' => 'required|string',
-            'name' => 'required|string',
-            'account_address' => 'required|string',
+            // 'name' => 'required|string',
+            // 'account_address' => 'required|string',
             'initial_amount' => 'required|numeric|min:0',
             'account_description' => 'nullable|string',
             'account_type' => 'required|exists:account_types,id',

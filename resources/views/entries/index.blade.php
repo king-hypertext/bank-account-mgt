@@ -19,11 +19,16 @@
             </nav>
             <div class="d-flex">
                 @if ($entries->isNotEmpty())
+                    <button title="Delete selected entries" class="btn btn-danger delete-entries py-1 px-2" disabled>
+                        {{-- <i class="fas fa-trash-alt"></i> --}}
+                        delete entries
+                    </button>
+                @endif
+                @if ($entries->isNotEmpty())
                     <button title="Reconcile Entries" class="btn btn-success reconcile-entries mx-1" disabled>
                         reconcile <i class="fas fa-check ms-1"></i>
                     </button>
                 @endif
-
                 <a class="btn btn-info" href="{{ route('entries.create', $account_location->id) }}">create entry</a>
             </div>
         </div>
@@ -48,26 +53,22 @@
                 </button>
             </div>
             <div class="table-responsive">
-                <table class="table align-middle" id="table-entries">
+                <table class="table align-middle text-uppercase" id="table-entries">
                     <thead class="text-uppercase">
                         <tr>
-                            <th>S/N</th>
-                            <th scope="col">bank name</th>
-                            {{-- <th scope="col">account number</th> --}}
-                            {{-- <th scope="col">account type</th> --}}
-                            <th scope="col">debit(ghs)</th>
-                            <th scope="col">credit(ghs)</th>
+                            {{-- <th>S/N</th> --}}
+                            <th scope="col" title="REFERENCE NUMBER">ref. number</th>
                             <th scope="col">description</th>
-                            <th scope="col">ref. number</th>
-                            <th scope="col">date</th>
+                            <th scope="col">bank</th>
+                            <th scope="col">location</th>
+                            <th scope="col">debit</th>
+                            <th scope="col">credit</th>
+                            <th scope="col" title="ACCOUNT BALANCE">balance</th>
+                            <th scope="col" title="PAYMENT DATE">pay. date</th>
+                            <th scope="col" title="VALUE DATE">v. date</th>
                             <th scope="col">actions</th>
                             <th>
-                                @if ($entries->isNotEmpty())
-                                    <button title="Delete selected entries" class="btn btn-danger delete-entries py-1 px-2"
-                                        disabled>
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                @endif
+
                             </th>
                         </tr>
                     </thead>
@@ -75,25 +76,29 @@
                         @forelse ($entries as $entry)
                             <tr
                                 class="border-bottom table-{{ $entry->is_reconciled ? 'secondary' : '' }} border-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
-                                <td>
+                                {{-- <td>
                                     {{ $loop->iteration }}
-                                </td>
-                                <td class="text-uppercase">{{ $entry->account->bank_name }}</td>
-                                {{-- <td>{{ $entry->account->account_number }}</td> --}}
+                                </td> --}}
+                                <td>{{ $entry->reference_number }}</td>
+                                <td>{{ $entry->description }}</td>
+                                <td class="text-uppercase">{{ $entry->account->name }}</td>
+                                <td>{{ $entry->account->accountLocation->name }}</td>
                                 {{-- <td>{{ $entry->account->accountType->type }}</td> --}}
                                 <td class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
                                     @if ($entry->entryType->type === 'debit')
-                                        {{ '-' . $entry->amount }}
+                                        {{ '-' . number_format($entry->amount, 2, '.', ',') }}
                                     @endif
                                 </td>
                                 <td class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
                                     @if ($entry->entryType->type === 'credit')
-                                        {{ '+' . $entry->amount }}
+                                        {{ '+' . number_format($entry->amount, 2, '.', ',') }}
                                     @endif
                                 </td>
-                                <td>{{ $entry->description }}</td>
-                                <td>{{ $entry->reference_number }}</td>
-                                <td class="text-nowrap">{{ Carbon::parse($entry->created_at)->format('Y-m-d') }}</td>
+                                <td class="fw-bold">
+                                    {{ number_format($entry->account->balance, 2, '.', ',') }}
+                                </td>
+                                <td class="text-nowrap">{{ Carbon::parse($entry->created_at)->format('d/m/Y') }}</td>
+                                <td class="text-nowrap">{{ Carbon::parse($entry->value_date)->format('d/m/Y') }}</td>
                                 <td>
                                     <div class="d-flex">
                                         <a title="Edit" class="btn text-warning p-1 mx-1"
@@ -111,7 +116,7 @@
                                 </td>
                                 <td class="m-0">
                                     <div class="form-check-inline m-0">
-                                        <input class="form-check-input check-account" autocomplete="off"
+                                        <input class="form-check-input check-entry" autocomplete="off"
                                             {{ $entry->is_reconciled ? 'disabled' : '' }}
                                             value="{{ $entry->is_reconciled ? '' : $entry->id }}" type="checkbox" />
                                     </div>
@@ -122,20 +127,20 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="2" class="text-start">Totals:</th>
+                            <th colspan="4" class="text-start">Totals:</th>
                             <th id="total-debit"></th>
                             <th id="total-credit"></th>
-                            <th colspan="4"></th>
+                            <th id="total-balance"></th>
+                            <th colspan="3"></th>
                         </tr>
                     </tfoot>
                 </table>
             </div>
-
         </div>
     </div>
     <script>
         // var ids = [];
-        // $('input[type="checkbox"].check-account').on('change', function(e) {
+        // $('input[type="checkbox"].check-entry').on('change', function(e) {
         //     e.currentTarget.checked ? ids.push($(this).val()) : ids.pop($(this).val());
         //     console.log(ids);
         // });
@@ -165,7 +170,7 @@
             updateButtonState();
 
             function updateButtonState() {
-                const checkboxes = $('table#table-entries input[type="checkbox"].check-account:checked');
+                const checkboxes = $('table#table-entries input[type="checkbox"].check-entry:checked');
                 const reconcileButton = $('button.reconcile-entries'); // Replace with your button selector
                 const deleteButton = $('button.delete-entries'); // Replace with your button selector
 
@@ -176,15 +181,15 @@
                     reconcileButton.attr('disabled', 'disabled');
                     deleteButton.attr('disabled', 'disabled');
                 }
-                if (checkboxes.length > 1) {
-                    deleteButton.removeAttr('disabled');
-                } else {
-                    deleteButton.attr('disabled', 'disabled');
-                }
+                // if (checkboxes.length > 1) {
+                //     deleteButton.removeAttr('disabled');
+                // } else {
+                //     deleteButton.attr('disabled', 'disabled');
+                // }
             }
             var entries = []; // Declare array outside function scope
             // Listen for checkbox changes
-            $('table#table-entries input[type="checkbox"].check-account').change(function() {
+            $('table#table-entries input[type="checkbox"].check-entry').change(function() {
                 const checkboxId = $(this).val();
                 const isChecked = $(this).is(':checked');
 
@@ -238,7 +243,7 @@
                 });
             });
             const ACCOUNTS_TABLE = new DataTable('#table-entries', {
-                responsive: true,
+                // responsive: true,
                 order: [
                     [0, 'asc']
                 ],
@@ -251,15 +256,16 @@
                         orderable: false
                     }
                 ],
-                buttons: ['copy', 'excel', 'pdf', 'csv', 'print'],
+                pageLength: 50,
+                // buttons: ['copy', 'excel', 'pdf', 'csv', 'print'],
                 footerCallback: function(row, data, start, end, display) {
                     var api = this.api(),
                         data;
                     var intVal = function(i) {
                         if (typeof i === 'string') {
-                            return i.replace(/[\$,]/g, '') * 1.00;
+                            return i.replace(/[\$,-]/g, '') * 1.00;
                         } else if (typeof i === 'number') {
-                            return i;
+                            return i.toString().replace(/-/g, '') * 1.00;
                         }
                     };
                     var total = api.column(5).data().reduce(function(a, b) {
@@ -269,18 +275,27 @@
                         style: 'currency',
                         currency: 'GHS',
                     });
-                    var debitTotal = api.column(2, {
+                    var debitTotal = api.column(4, {
                         page: 'current'
                     }).data().reduce(function(a, b) {
                         return intVal(a) + intVal(b);
                     }, 0.00);
-                    var creditTotal = api.column(3, {
+                    var creditTotal = api.column(5, {
                         page: 'current'
                     }).data().reduce(function(a, b) {
                         return intVal(a) + intVal(b);
                     }, 0.00);
-                    $(api.column(2).footer()).addClass('text-danger fw-semibold').html(debitTotal);
-                    $(api.column(3).footer()).addClass('text-success fw-semibold').html(creditTotal);
+                    var balanceTotal = api.column(6, {
+                        page: 'current'
+                    }).data().reduce(function(a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0.00);
+                    $(api.column(4).footer()).addClass('text-danger fw-semibold d-inline-block').html(
+                        formatter.format(debitTotal));
+                    $(api.column(5).footer()).addClass('text-success fw-semibold').html(formatter
+                        .format(creditTotal));
+                    $(api.column(6).footer()).addClass('fw-semibold').html(formatter.format(
+                        balanceTotal));
                 },
                 buttons: [{
                         extend: 'excel',
@@ -294,7 +309,7 @@
                             "data-mdb-ripple-init": '',
                         },
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6]
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
                         }
                     },
                     {
@@ -304,7 +319,7 @@
                         orientation: 'portrait',
                         pageSize: 'A4',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6],
+                            columns: [1, 2, 3, 4, 5, 6, 7, 8],
                         },
                         text: '<i class="fas fa-print me-1"></i> pdf',
                         className: 'btn text-white ms-1',
@@ -321,7 +336,7 @@
                         title: '<span class="text-uppercase text-center"> {{ $account_location->name }} Entries </span>',
                         pageSize: 'A4',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6],
+                            columns: [1, 2, 3, 4, 5, 6, 7, 8],
                         },
                         orientation: 'portrait',
                         message: 'Printed on ' + new Date().toLocaleString(),

@@ -43,11 +43,12 @@ class EntryController extends Controller
             'entry_type_id' => $request->entry_type,
             'description' => $request->description,
             'amount' => $request->amount,
-            'date' => $request->date,
+            'value_date' => $request->value_date ?? now(),
             'reference_number' => $request->reference_number,
             'created_at' => $request->date ?? now(),
         ]);
-        return redirect()->to(route('entries.index', $location))->with('success', 'Entries created successfully');
+        $routeName = $request->has('exist') ? 'entries.index' : 'entries.create';
+        return redirect()->to(route($routeName, $location))->with('success', 'Entry created successfully');
     }
 
     /**
@@ -81,41 +82,21 @@ class EntryController extends Controller
         if ($entry->account->accountLocation->id !== $location) {
             abort(403, 'Account does not belongs to this location.');
         }
-        // if ($entry->is_reconciled) {
-        //     $entry->update([
-        //         'entry_type' => $request->entry_type,
-        //         'description' => $request->description,
-        //         // 'amount' => $request->amount,
-        //         'date' => $request->date,
-        //         // 'reference_number' => $request->reference_number,
-        //         'updated_at' => $request->date ?? now(),
-        //     ]);
-        // } else {
-        //     $entry->update([
-        //         'entry_type_id' => $request->entry_type,
-        //         'description' => $request->description,
-        //         'amount' => $request->amount,
-        //         'date' => $request->date,
-        //         'reference_number' => $request->reference_number,
-        //         'updated_at' => $request->date ?? now(),
-        //     ]);
-        // }
-        // Reconciled entry update restrictions
         if ($entry->is_reconciled) {
             $fields = [
                 'entry_type' => $request->entry_type,
                 'description' => $request->description,
-                'date' => $request->date,
-                'updated_at' => $request->date ?? now(),
+                'value_date' => $request->value_date ?? now(),
+                'created_at' => $request->date ?? now(),
             ];
         } else {
             $fields = [
                 'entry_type_id' => $request->entry_type,
                 'description' => $request->description,
                 'amount' => $request->amount,
-                'date' => $request->date,
+                'value_date' => $request->value_date ?? now(),
                 'reference_number' => $request->reference_number,
-                'updated_at' => $request->date ?? now(),
+                'created_at' => $request->date ?? now(),
             ];
         }
         // Update entry

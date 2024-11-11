@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="{{ asset('assets/app/main.css') }}" />
     <link rel="stylesheet" href="">
     <script src="{{ asset('assets/jquery/external/jquery.js') }}"></script>
-    <title>ACCOUNTS MANAGER | {{ $page_title ?? 'HOME' }}</title>
+    <title>ACCOUNTS MANAGER | {{ strtoupper($page_title ?? 'HOME') }}</title>
 </head>
 <style>
     .loader-overlay {
@@ -170,10 +170,16 @@
             <div class="col-md-10 main">
                 <div class="container mt-auto">
                     <div class="d-flex mt-3 align-items-center justify-content-between">
-                        <h3 class="h3 fs-4 fw-bold text-uppercase">
-                            {{ $account_location->name }} @yield('name')
-                        </h3>
-                        <button class="btn btn-info modify-account">modify</button>
+                        
+                        <div class="align-items-center">
+                            <button class="btn btn-primary clone-btn me-2"
+                                data-url="{{ route('l.clone', $account_location->id) }}" title="clone accounts">clone
+                                <i class="fa-regular fa-clone ms-1"></i>
+                            </button>
+                            <button class="btn text-white new-account me-2" title="Create new location"
+                                style="background-color: #ac2bac;">new location</button>
+                            <button class="btn btn-warning modify-account">modify</button>
+                        </div>
                     </div>
                     @yield('content')
                 </div>
@@ -190,101 +196,6 @@
     <script type="text/javascript">
         $(document).ready(function() {
             $('.loader-overlay').hide();
-            // $('button.modify-account').click(function() {
-
-            //     const {
-            //         value: location_name
-            //     } = Swal.fire({
-            //         title: "Modfy Account Location Name",
-            //         input: "text",
-            //         inputLabel: "Enter Location Name",
-            //         inputValue: "{{ $account_location->name }}",
-            //         showCancelButton: true,
-            //         confirmButtonText: "Update",
-            //         cancelButtonText: "Cancel",
-            //         // showLoaderOnConfirm: true,
-            //         preConfirm: (location_name) => {
-            //             return new Promise((resolve) => {
-            //                 if (!location_name) {
-            //                     Swal.showValidationError("Location Name cannot be empty!");
-            //                 } else {
-            //                     resolve();
-            //                 }
-            //             });
-            //         },
-            //         allowOutsideClick: () =>!Swal.isLoading(),
-            //         inputValidator: (value) => {
-            //             if (!value) {
-            //                 return "input field cannot be empty!";
-            //             }
-            //         },
-            //         isConfirmed: (value) =>{
-            //             return new Promise((resolve) => {
-            //                 $.ajax({
-            //                     url: '/locations/' + '{{ $account_location->id }}',
-            //                     method: 'PUT',
-            //                     data: {
-            //                         location: location_name
-            //                     },
-            //                     success: function(response) {
-            //                         showSuccessAlert.fire({
-            //                             icon:'success',
-            //                             text: 'Account location updated successfully!',
-            //                             padding: '15px',
-            //                             width: 'auto'
-            //                         });
-            //                         setTimeout(() => {
-            //                             location.reload();
-            //                         }, 1500);
-            //                         resolve();
-            //                     },
-            //                     error: function(error) {
-            //                         showSuccessAlert.fire({
-            //                             icon: 'error',
-            //                             text: 'Failed to update account location. Please try again later.',
-            //                             padding: '15px',
-            //                             width: 'auto'
-            //                         });
-            //                         resolve();
-            //                     }
-            //                 });
-            //             });
-            //         }
-            //     });
-            //     if (location_name) {
-            //         console.log(location_name);
-
-            //         $.ajax({
-            //             url: "{{ route('l.update', $account_location->id) }}",
-            //             method: 'PUT',
-            //             data: {
-            //                 name: location_name
-            //             },
-            //             success: function(response) {
-            //                 if (response.success) {
-            //                     window.open(response.url, '_self');
-            //                 }
-            //             },
-            //             error: function(error) {
-            //                 return console.log(error);
-
-            //                 if (error.status === 422) {
-            //                     const errors = JSON.parse(error.responseText);
-            //                     let errorMessages = '';
-            //                     for (let key in errors) {
-            //                         errorMessages += errors[key][0] + '<br>';
-            //                     }
-            //                     showSuccessAlert.fire({
-            //                         icon: 'error',
-            //                         text: errorMessages,
-            //                         padding: '15px',
-            //                         width: 'auto'
-            //                     });
-            //                 }
-            //             }
-            //         });
-            //     }
-            // });
             $('button.modify-account').click(function() {
                 const locationId = "{{ $account_location->id }}";
                 const updateUrl = "{{ route('l.update', $account_location->id) }}";
@@ -349,6 +260,96 @@
                                     });
                                 }
                             });
+                    }
+                });
+            });
+            $('button.new-account').click(function() {
+                const url = "{{ route('l.new') }}";
+                Swal.fire({
+                    title: "Add New Location",
+                    input: "text",
+                    inputLabel: "Enter Location Name",
+                    inputValue: "",
+                    showCancelButton: true,
+                    confirmButtonText: "Create",
+                    cancelButtonText: "Cancel",
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return "field cannot be empty!";
+                        }
+                    },
+                    preConfirm: (locationName) => {
+                        $.ajax({
+                                url,
+                                method: 'POST',
+                                data: {
+                                    name: locationName,
+                                    _token: '{{ csrf_token() }}',
+                                },
+                            })
+                            .done((response) => {
+                                if (response.success) {
+                                    window.open(response.url, '_self');
+                                }
+                            })
+                            .fail((error) => {
+                                if (error.status === 422) {
+                                    const errors = error.responseJSON.errors;
+                                    // return console.log(errors);
+
+                                    let errorMessages = '';
+                                    for (let key in errors) {
+                                        errorMessages += errors[key][0];
+                                    }
+                                    showSuccessAlert.fire({
+                                        icon: 'error',
+                                        text: errorMessages,
+                                        padding: '15px',
+                                        width: 'auto'
+                                    });
+                                } else {
+                                    showSuccessAlert.fire({
+                                        icon: 'error',
+                                        text: 'Failed to update account location. Please try again later.',
+                                        padding: '15px',
+                                        width: 'auto'
+                                    });
+                                }
+                            });
+                    }
+                });
+            });
+            $('button.clone-btn').click(function() {
+                if (!confirm('Confirm cloning accounts?')) {
+                    return false;
+                }
+                const url = $(this).data('url');
+                const $button = $(this);
+                const $loader = $('.loader-overlay');
+
+                $.ajax({
+                    url,
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+                        $button.prop('disabled', true);
+                        $loader.show().find('.loader-text').text('Cloning...');
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            window.open(response.url, '_blank');
+                        } else {
+                            alert(`Failed to clone model: ${response.message}`);
+                        }
+                        $button.prop('disabled', false);
+                        $loader.hide();
+                    },
+                    error: function(xhr, status, error) {
+                        alert(`An error occurred: ${xhr.responseText}`);
+                        $button.prop('disabled', false);
+                        $loader.hide();
                     }
                 });
             });

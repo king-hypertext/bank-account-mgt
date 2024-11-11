@@ -104,6 +104,18 @@
                         @enderror
                     </div>
                 </fieldset>
+                <fieldset class="row mb-3">
+                    <label for="value-date" class="col-form-label text-uppercase col-sm-2 pt-0">value date</label>
+                    <div class="col-sm-10">
+                        <input required type="date"
+                            value="{{ Carbon::parse($entry->value_date)->format('Y-m-d') ?? now()->format('Y-m-d') }}"
+                            class="form-control @error('value-date') is-invalid @enderror" name="value-date" id="value-date"
+                            placeholder="" />
+                        @error('value-date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </fieldset>
                 @method('PUT')
                 @csrf
                 <div class="d-flex justify-content-end mb-3">

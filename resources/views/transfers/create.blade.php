@@ -13,7 +13,7 @@
                         <a href="#">accounts</a>
                     </li>
                     <li class="breadcrumb-item text-uppercase">
-                        <a title="go to entries" href="{{ route('entries.index', $account_location) }}">entries</a>
+                        <a title="go to entries" href="{{ route('transfers.create', $account_location) }}">transfers</a>
                     </li>
                     <li class="breadcrumb-item text-uppercase active" aria-current="page">
                         <a href="#">create</a>
@@ -27,32 +27,46 @@
     </nav>
     <div class="card shadow-1-soft">
         <div class="card-body">
-            <h5 class="card-title text-capitalize mb-5 fw-bold">create new entry</h5>
-            <form id="create-entry" action="{{ route('entries.store', $account_location->id) }}" method="POST">
+            <h5 class="card-title text-capitalize mb-5 fw-bold">create transfer</h5>
+            @session('error')
+                <div class="alert alert-danger" role="alert">
+                    {{ session('error') }}
+                </div>
+            @endsession
+            @if ($errors->any())
+                <div class="alert alert-danger" role="alert">
+                    <ul class="list-unstyled mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            <form id="create-entry" action="{{ route('transfers.store', $account_location->id) }}" method="POST">
                 <fieldset class="row mb-3">
-                    <label for="account" class="col-form-label text-uppercase col-sm-2 pt-0">account</label>
+                    <label for="from_account" class="col-form-label text-uppercase col-sm-2 pt-0">from account</label>
                     <div class="col-sm-10">
-                        <select required class="form-select select2 @error('account') is-invalid @enderror" name="account"
-                            id="account">
+                        <select required class="form-select select2 @error('from_account') is-invalid @enderror"
+                            name="from_account" id="from_account">
                             @forelse ($accounts as $account)
-                                <option value="{{ $account->id }}">{{ $account->bank_name }}</option>
+                                <option value="{{ $account->id }}">{{ $account->name }}</option>
                             @empty
                             @endforelse
                         </select>
                     </div>
                 </fieldset>
-                <div class="row mb-3">
-                    <label for="entry_type" class="col-sm-2 col-form-label text-uppercase">entry type</label>
+                <fieldset class="row mb-3">
+                    <label for="to_account" class="col-form-label text-uppercase col-sm-2 pt-0">to account</label>
                     <div class="col-sm-10">
-                        <select required name="entry_type" class="form-select @error('entry_type') is-invalid @enderror"
-                            id="entry_type">
-                            @forelse ($entry_types as $entry_type)
-                                <option value="{{ $entry_type->id }}">{{ $entry_type->type }}</option>
+                        <select required class="form-select select2 @error('to_account') is-invalid @enderror"
+                            name="to_account" id="to_account">
+                            @forelse ($accounts as $account)
+                                <option value="{{ $account->id }}">{{ $account->name }}</option>
                             @empty
                             @endforelse
                         </select>
                     </div>
-                </div>
+                </fieldset>
                 <div class="row mb-3">
                     <label for="amount" class="col-sm-2 col-form-label text-uppercase">amount</label>
                     <div class="col-sm-10">
@@ -65,31 +79,17 @@
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <label for="description" class="col-sm-2 col-form-label text-uppercase">description</label>
+                    <label for="notes" class="col-sm-2 col-form-label text-uppercase">description</label>
                     <div class="col-sm-10">
-                        <textarea required name="description" class="form-control @error('description') is-invalid @enderror" id="description"
+                        <textarea required name="notes" class="form-control @error('notes') is-invalid @enderror" id="notes"
                             rows="3"></textarea>
-                        @error('description')
+                        @error('notes')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
-                <div class="row mb-3">
-                    <label for="reference_number" class="col-form-label text-uppercase col-sm-2 pt-0">reference
-                        number</label>
-                    <div class="col-sm-10">
-                        <div class="mb-3">
-                            <input type="number" value="{{ now()->format('Ymdhis') }}"
-                                class="form-control @error('reference_number') is-invalid @enderror" name="reference_number"
-                                id="reference_number" />
-                            @error('reference_number')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
                 <fieldset class="row mb-3">
-                    <label for="date" class="col-form-label text-uppercase col-sm-2 pt-0">payment date</label>
+                    <label for="date" class="col-form-label text-uppercase col-sm-2 pt-0">value date</label>
                     <div class="col-sm-10">
                         <input required type="date" value="{{ now()->format('Y-m-d') }}"
                             class="form-control @error('date') is-invalid @enderror" name="date" id="date"
@@ -99,20 +99,9 @@
                         @enderror
                     </div>
                 </fieldset>
-                <fieldset class="row mb-3">
-                    <label for="value_date" class="col-form-label text-uppercase col-sm-2 pt-0">value date</label>
-                    <div class="col-sm-10">
-                        <input required type="date" value="{{ now()->format('Y-m-d') }}"
-                            class="form-control @error('value_date') is-invalid @enderror" name="value_date" id="value_date"
-                            placeholder="" />
-                        @error('value_date')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </fieldset>
                 @csrf
                 <div class="d-flex justify-content-end mb-3">
-                    <input value="save & exit" type="submit" name="exist" class="btn btn-info me-2"></input>
+                    <input value="save & exit" type="submit" name="exit" class="btn btn-info me-2"></input>
                     <button type="submit" class="btn btn-primary">save</button>
                 </div>
             </form>

@@ -10,7 +10,7 @@
                         <a href="#">{{ env('APP_NAME') }}</a>
                     </li>
                     <li class="breadcrumb-item text-uppercase">
-                        <a href="#">account</a>
+                        <a href="{{route('account.home', $account_location->id)}}">accounts</a>
                     </li>
                     <li class="breadcrumb-item text-uppercase active" aria-current="page">
                         <a href="#">create</a>
@@ -56,7 +56,7 @@
                         @enderror
                     </div>
                 </div>
-                <div class="row mb-3">
+                {{-- <div class="row mb-3">
                     <label for="name" class="col-sm-2 col-form-label text-uppercase">account name</label>
                     <div class="col-sm-10">
                         <input required type="name" class="form-control @error('name') is-invalid @enderror"
@@ -65,7 +65,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                </div>
+                </div> --}}
                 <div class="row mb-3">
                     <label for="account_type" class="col-sm-2 col-form-label text-uppercase">account type</label>
                     <div class="col-auto">
@@ -78,7 +78,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="row mb-3">
+                {{-- <div class="row mb-3">
                     <label for="account_address" class="col-form-label text-uppercase col-sm-2 pt-0">account
                         address</label>
                     <div class="col-sm-10">
@@ -89,12 +89,12 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                </div>
+                </div> --}}
                 <div class="row mb-3">
                     <label for="initial_amount" class="col-form-label text-uppercase col-sm-2 pt-0">initial
                         amount</label>
                     <div class="col-sm-10">
-                        <input required type="number" step="0.01" value="0.00"
+                        <input required type="number" onfocus="this.select()" step="0.01" value="0.00"
                             class="form-control @error('initial_amount') is-invalid @enderror" id="initial_amount"
                             name="initial_amount" />
                         @error('initial_amount')

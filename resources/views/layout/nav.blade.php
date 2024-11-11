@@ -5,6 +5,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('l.list') }}"><i class="fas fa-home"></i> Home</a>
                 </li>
+                <li class="nav-item d-flex align-items-center">
+                    <h3 class="h3 flex my-auto align-items-center fs-4 fw-bold text-uppercase">
+                        {{ $account_location->name }} 
+                    </h3>
+                </li>
                 <li class="nav-item">
                     <a id="signout" href="#" class="nav-link" title="click to logout">
                         <i class="fa-solid fa-right-to-bracket"></i>

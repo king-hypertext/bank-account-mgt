@@ -62,7 +62,7 @@
                         @enderror
                     </div>
                 </div>
-                <div class="row mb-3">
+                {{-- <div class="row mb-3">
                     <label for="name" class="col-sm-2 col-form-label text-uppercase">account name</label>
                     <div class="col-sm-10">
                         <input required type="name" class="form-control @error('name') is-invalid @enderror"
@@ -71,7 +71,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                </div>
+                </div> --}}
                 <div class="row mb-3">
                     <label for="account_type" class="col-sm-2 col-form-label text-uppercase">account type</label>
                     <div class="col-auto">
@@ -85,7 +85,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="row mb-3">
+                {{-- <div class="row mb-3">
                     <label for="account_address" class="col-form-label text-uppercase col-sm-2 pt-0">account
                         address</label>
                     <div class="col-sm-10">
@@ -96,7 +96,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                </div>
+                </div> --}}
                 <div class="row mb-3">
                     <label for="initial_amount" class="col-form-label text-uppercase col-sm-2 pt-0">initial
                         amount</label>
@@ -129,8 +129,8 @@
                     <label for="created_at" class="col-form-label text-uppercase col-sm-2 pt-0">date</label>
                     <div class="col-sm-10">
                         <input required type="date" value="{{ now()->format('Y-m-d') }}"
-                            class="form-control @error('created_at') is-invalid @enderror" name="created_at"
-                            id="created_at" placeholder="" />
+                            class="form-control @error('created_at') is-invalid @enderror" name="created_at" id="created_at"
+                            placeholder="" />
                         @error('created_at')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -158,6 +158,7 @@
 @endsection
 @section('script')
     <script>
+        $('textarea').val('{{ $account->account_description }}');
         const form = document.getElementById('edit-account-form');
         form && form.addEventListener('submit', function(e) {
             e.submitter.classList.add('disabled');

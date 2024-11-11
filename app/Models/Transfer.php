@@ -9,25 +9,38 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Transfer extends Model
 {
     use HasFactory, SoftDeletes;
-    protected $fillale = [
+    protected $fillable = [
         'to_account_id',
         'from_account_id',
         'amount',
         'notes',
-        'transaction_type_id',
+        'transfer_type_id',
     ];
+
+    public function scopeInternalTransfers($query)
+    {
+        return $query->where('transaction_type_id', TransferType::INTERNAL_ID);
+    }
+    public function scopeExternalTransfers($query)
+    {
+        return $query->where('transaction_type_id', TransferType::EXTERNAL_ID);
+    }
     public function scopeBelongsToAccounts($query, $accountIds)
     {
         return $query->whereIn('to_account_id', $accountIds)->whereIn('from_account_id', $accountIds)->orderBy('created_at', 'desc')->get();
     }
-    public function fromAccount(){
+    public function fromAccount()
+    {
         return $this->belongsTo(Account::class, 'from_account_id');
     }
-    public function toAccount(){
+    public function toAccount()
+    {
         return $this->belongsTo(Account::class, 'to_account_id');
     }
-    public function transactionType(){
-        return $this->belongsTo(TransactionType::class);
-    }
 
+    public function transferType()
+    {
+        return $this->belongsTo(TransferType::class);  // Assuming TransferType Model has a foreign key 'transfer_type_id'
+    }
+    
 }

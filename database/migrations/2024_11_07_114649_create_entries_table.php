@@ -15,16 +15,16 @@ return new class extends Migration
             $table->id();
             $table->foreignId('entry_type_id')->constrained();
             $table->foreignId('account_id')->constrained();
-            $table->date('date');
+            $table->date('value_date');
             $table->decimal('amount', 10, 2);
             $table->text('description')->nullable();
             $table->boolean('is_reconciled')->default(false);
+            $table->boolean('is_transfer')->default(false);
             $table->string('reference_number', 55)->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */

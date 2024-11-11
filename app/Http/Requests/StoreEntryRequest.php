@@ -27,7 +27,8 @@ class StoreEntryRequest extends FormRequest
             'amount' => 'required|numeric|min:1',
             'description' => 'required|string|max:255',
             'reference_number' => 'nullable|string|max:100',
-            'date' => 'date'
+            'date' => 'date',
+            'value_date' => 'date'
         ];
     }
     public function messages(): array

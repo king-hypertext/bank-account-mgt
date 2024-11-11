@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateAccountRequest;
 use App\Models\AccountLocation;
 use App\Models\AccountStatus;
 use App\Models\AccountType;
+use App\Models\EntryType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,7 +21,7 @@ class AccountController extends Controller
     {
         $account_location =  AccountLocation::findOrFail($location);
         $accounts = $account_location->accounts()->orderBy('created_at', 'DESC')->get();
-        $page_title = 'Accounts - ' . $account_location->name;
+        $page_title = $account_location->name;
         return view('accounts.index', compact('accounts', 'account_location', 'page_title'));
     }
 
@@ -35,6 +36,19 @@ class AccountController extends Controller
         $account_statuses = AccountStatus::all();
         return view('accounts.create', compact('account_location', 'page_title', 'account_types', 'account_statuses'));
     }
+    private
+    function getAcronym($str)
+    {
+        $words = explode(' ', trim($str));
+        $acronym = '';
+        foreach ($words as $word) {
+            if (strlen($word) > 3) {
+                $acronym .= strtoupper($word[0]);
+            }
+        }
+        return $acronym;
+    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -42,19 +56,28 @@ class AccountController extends Controller
     public function store(int $location, StoreAccountRequest $request)
     {
         $account_location = AccountLocation::findOrFail($location);
+        dd($request->all());
         $account = $account_location->accounts()->create([
             'account_number' => $request->account_number,
             'bank_name' => $request->bank_name,
-            'name' => $request->name,
+            'name' => $this->getAcronym($request->bank_name),
             'account_type_id' => $request->account_type,
             'account_status_id' => $request->account_status,
             'account_description' => $request->account_description,
-            'account_address' => $request->account_address,
+            'account_address' => $account_location->name . ' - ' . $this->getAcronym($request->bank_name),
             'initial_amount' => $request->initial_amount ?? 0,
             'balance' => $request->initial_amount ?? 0,
             'created_at' => $request->created_at ?? now(),
         ]);
-        $request->initial_amount > 0 && $account->updateBalance($request->initial_balance, 'credit');
+        //create an entry with description initial deposit
+        $account->entries()->create([
+            'entry_type_id' => EntryType::CREDIT_ID,
+            'amount' => $request->initial_amount ?? 0,
+            'description' => 'intial deposit',
+            'reference_number' => now()->format('Ymdhisv'),
+            'value_date' => $request->created_at ?? now(),
+        ]);
+        $request->initial_amount > 0 && $account->updateBalance($request->initial_amount ?? 0, 'credit');
         $routeName = $request->has('exist') ? 'account.home' : 'account.create';
         return redirect()->to(route($routeName, $location))->with('success', 'account created successfully');
     }
@@ -96,21 +119,28 @@ class AccountController extends Controller
         if ($account->accountLocation->id !== $location) {
             abort(403, 'Account does not belongs to this location.');
         }
+
+        $previousInitialAmount = $account->initial_amount;
         $account->update([
             'account_number' => $request->account_number,
             'bank_name' => $request->bank_name,
-            'name' => $request->name,
+            'name' => $this->getAcronym($request->bank_name),
             'account_type_id' => $request->account_type,
             'account_status_id' => $request->account_status,
             'account_description' => $request->account_description,
-            'account_address' => $request->account_address,
+            'account_address' => $account->accountLocation->name . ' - ' . $this->getAcronym($request->bank_name),
             'initial_amount' => $request->initial_amount,
-            'balance' => $request->initial_amount,
             'created_at' => $request->created_at ?? now(),
         ]);
-        $request->initial_amount > 0 && $account->updateBalance($request->initial_amount, 'credit');
+
+        if ($request->initial_amount !== $previousInitialAmount) {
+            $difference = $request->initial_amount - $previousInitialAmount;
+            $account->updateBalance($difference, 'credit');
+        }
+
         return back()->with('success', 'Account updated successfully');
     }
+
 
     /**
      * Remove the specified resource from storage.

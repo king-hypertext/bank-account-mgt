@@ -23,12 +23,12 @@ class StoreAccountRequest extends FormRequest
     {
         return [
             'account_number' => 'required|numeric|unique:accounts,account_number',
-            'name' => 'required|string|max:255',
+            // 'name' => 'required|string|max:255',
             'bank_name' => 'required|string|max:255',
             'account_type' => 'required|exists:account_types,id',
             'account_status' => 'required|exists:account_statuses,id',
             'account_description' => 'nullable|string|max:255',
-            'account_address' => 'required|string|max:255',
+            // 'account_address' => 'required|string|max:255',
             'initial_amount' => 'required|numeric|min:0',
             'created_at' => 'date'
         ];

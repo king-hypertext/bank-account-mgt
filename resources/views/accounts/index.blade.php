@@ -18,10 +18,6 @@
                 </ol>
             </nav>
             <div class="d-flex">
-                <button class="btn btn-primary clone-btn me-2" data-url="{{ route('l.clone', $account_location->id) }}"
-                    title="clone accounts">clone
-                    <i class="fa-regular fa-clone ms-1"></i>
-                </button>
                 <a class="btn btn-info" href="{{ route('account.create', $account_location->id) }}">new account</a>
             </div>
         </div>
@@ -50,10 +46,12 @@
                     <thead class="text-uppercase">
                         <tr class="border-bottom border-info">
                             <th>S/N</th>
-                            <th scope="col">bank name</th>
+                            <th scope="col">bank</th>
+                            <th scope="col">location</th>
                             <th scope="col">account number</th>
                             <th scope="col">account type</th>
                             <th scope="col">account status</th>
+                            <th scope="col" title="ENTRIES TO RECONCILE">ETR</th>
                             <th scope="col">balance(ghs)</th>
                             <th scope="col">date created</th>
                             <th scope="col">operations</th>
@@ -66,10 +64,16 @@
                                 <td>
                                     {{ $loop->iteration }}
                                 </td>
-                                <td>{{ $account->bank_name }}</td>
+                                <td>{{ $account->name }}</td>
+                                <td>{{ $account->accountLocation->name }}</td>
                                 <td>{{ $account->account_number }}</td>
                                 <td>{{ $account->accountType->type }}</td>
                                 <td>{{ $account->accountStatus->status }}</td>
+                                <td>
+                                    <a role="button" href="#" title="GO TO ENTRIES"
+                                        class="btn btn-secondary p-2">{{ $account->entries()->entriesToReconcile()->count() }}
+                                    </a>
+                                </td>
                                 <td class="text-{{ $account->balance >= 0 ? 'success' : 'danger' }} fw-bold">
                                     {{ number_format($account->balance, 2) }}
                                 </td>
@@ -91,16 +95,11 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr>
-                                <td colspan="8" class="text-center text-uppercase">
-                                    <span class="text-muted">no accounts found</span>
-                                </td>
-                            </tr>
                         @endforelse
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="5" class="text-start">Total Balance:</th>
+                            <th colspan="6" class="text-start">Total:</th>
                             <th id="total-balance"></th>
                             <th colspan="2"></th>
                         </tr>
@@ -110,53 +109,13 @@
 
         </div>
     </div>
-    {{-- <script>
-        var ids = [];
-        $('input[type="checkbox"].check-account').on('change', function(e) {
-            e.currentTarget.checked ? ids.push($(this).val()) : ids.pop($(this).val());
-            console.log(ids);
-        });
-    </script> --}}
 @endsection
 @section('script')
     <script>
         $(document).ready(function() {
             console.log($('button.clone-btn'));
 
-            $('button.clone-btn').click(function() {
-                if (!confirm('Confirm cloning accounts?')) {
-                    return false;
-                }
-                const url = $(this).data('url');
-                const $button = $(this);
-                const $loader = $('.loader-overlay');
 
-                $.ajax({
-                    url,
-                    method: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}'
-                    },
-                    beforeSend: function() {
-                        $button.prop('disabled', true);
-                        $loader.show().find('.loader-text').text('Cloning...');
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            window.open(response.url, '_blank');
-                        } else {
-                            alert(`Failed to clone model: ${response.message}`);
-                        }
-                        $button.prop('disabled', false);
-                        $loader.hide();
-                    },
-                    error: function(xhr, status, error) {
-                        alert(`An error occurred: ${xhr.responseText}`);
-                        $button.prop('disabled', false);
-                        $loader.hide();
-                    }
-                });
-            });
             $('button.delete-account').click(function() {
                 const id = $(this).data('id');
                 const url = $(this).data('url');
@@ -224,12 +183,12 @@
                         style: 'currency',
                         currency: 'GHS',
                     });
-                    var pageTotal = api.column(5, {
+                    var pageTotal = api.column(6, {
                         page: 'current'
                     }).data().reduce(function(a, b) {
                         return intVal(a) + intVal(b);
                     }, 0.00);
-                    $(api.column(5).footer()).html(formatter.format(pageTotal));
+                    $(api.column(6).footer()).html(formatter.format(pageTotal));
                 },
                 buttons: [{
                         extend: 'excel',
@@ -243,7 +202,7 @@
                             "data-mdb-ripple-init": '',
                         },
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6]
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7]
                         }
                     },
                     {
@@ -253,7 +212,7 @@
                         orientation: 'portrait',
                         pageSize: 'A4',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6],
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7],
                         },
                         text: '<i class="fas fa-print me-1"></i> pdf',
                         className: 'btn text-white ms-1',
@@ -270,7 +229,7 @@
                         title: '<span class="text-uppercase text-center"> {{ $account_location->name }} Bank List</span>',
                         pageSize: 'A4',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6],
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7],
                         },
                         orientation: 'portrait',
                         message: 'Printed on ' + new Date().toLocaleString(),

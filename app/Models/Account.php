@@ -26,6 +26,14 @@ class Account extends Model
     {
         return $this->belongsTo(AccountLocation::class);
     }
+    public function scopeOpen()
+    {
+        return $this->where('account_status_id', AccountStatus::OPEN_ID);
+    }
+    public function scopeClosed()
+    {
+        return $this->where('account_status_id', AccountStatus::CLOSED_ID);
+    }
     public function accountType()
     {
         return $this->belongsTo(AccountType::class);

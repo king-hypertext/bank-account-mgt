@@ -14,24 +14,14 @@ body {
     background-color: var(--bd-bg-color);
 }
 
-body.login {
-    background-color: #003366;
-    color: #fff;
-    display: flex;
-    place-items: center;
-    place-content: center;
+.currency {
+    font-weight: bold !important;
+    display: inline-flex;
 }
 
-.login>.container {
-    max-width: 400px !important;
-}
-
-.sidebar {
-    height: 100%;
-    background-color: var(--sidebar-bg-color);
-    width: 100%;
-    max-width: 320px !important;
-    top: 60px;
+.currency::before {
+    font-family: 'Segoe UI';
+    content: '\20B5';
 }
 
 .main {
@@ -44,43 +34,6 @@ body.login {
     display: block;
     justify-items: center;
     margin-left: 280px;
-}
-
-.nav-item>a.nav-link:is(:hover, :active) {
-    background-color: #fff;
-    color: #003366 !important;
-}
-
-.dropdown {
-    border: 0 !important;
-
-}
-
-.dropdown-menu.dropdown-menu-end {
-    margin-left: -20px !important;
-    overflow: hidden;
-}
-
-/* Change color of dropdown links on hover */
-.dropdown-menu a:hover {
-    background-color: #335272 !important;
-    color: #fff;
-}
-
-.form-outline .form-control,
-.form-control,
-.form-select {
-    /* border: 2px solid transparent !important; */
-    /* transition: all .3s ease-in-out; */
-}
-
-.form-outline .form-control:active,
-.form-outline .form-control:focus,
-.form-control:focus,
-.form-select:focus {
-    /* border: 2px solid var(--bs-primary) !important; */
-    /* box-shadow: none; */
-    /* transition: all .3s ease-in-out; */
 }
 
 /* text divider */
