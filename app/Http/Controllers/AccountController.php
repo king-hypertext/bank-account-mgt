@@ -95,7 +95,7 @@ class AccountController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(int $location, Account $account)
+    public function show(int $location, Request $request, Account $account)
     {
         $page_title = 'account';
         $account_location = AccountLocation::findOrFail($location);
@@ -103,7 +103,13 @@ class AccountController extends Controller
             abort(403, 'Account does not belongs to this location.');
         }
         $account->load('entries');
-        return view('accounts.show', compact('account', 'account_location', 'page_title'));
+        $entries = $account->entries()->reconciled()->orderBy('created_at', 'ASC')->get();
+        if ($request->filled(['start_date', 'end_date'])) {
+            $start_date = $request->start_date;
+            $end_date = $request->end_date;
+            $entries = $account->entries()->reconciled()->whereBetween('value_date', [$start_date, $end_date])->orderBy('created_at', 'ASC')->get();
+        }
+        return view('accounts.show', compact('account', 'account_location', 'page_title', 'entries'));
     }
 
     /**
@@ -188,6 +194,13 @@ class AccountController extends Controller
 
         $url = redirect()->route('account.home', $clonedAccountLocation->id)
             ->with('success', 'Accounts cloned successfully')->getTargetUrl();
+        return response()->json(['success' => true, 'url' => $url]);
+    }
+    public function restore(int $location, $account)
+    {
+        $account = Account::withTrashed()->where('id', $account)->first();
+        $account->restore();
+        $url = redirect()->route('account.home', $location)->with('success', 'Account restored successfully')->getTargetUrl();
         return response()->json(['success' => true, 'url' => $url]);
     }
 }

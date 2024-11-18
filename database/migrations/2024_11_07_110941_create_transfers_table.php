@@ -18,8 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('transfer_type_id');
             $table->decimal('amount', 10, 2);
             $table->text('notes')->nullable();
-            $table->foreign('from_account_id')->references('id')->on('accounts');
-            $table->foreign('to_account_id')->references('id')->on('accounts');
+            $table->foreign('from_account_id')->references('id')->on('accounts')->cascadeOnDelete();
+            $table->foreign('to_account_id')->references('id')->on('accounts')->cascadeOnDelete();
             $table->foreign('transfer_type_id')->references('id')->on('transfer_types');
             $table->softDeletes();
             $table->timestamps();

@@ -96,24 +96,28 @@
                                     class="border-bottom table-{{ $entry->is_reconciled ? 'secondary' : '' }} border-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
                                     <td>{{ $entry->reference_number }}</td>
                                     <td>{{ $entry->description }}</td>
-                                    <td class="text-nowrap">{{ Carbon::parse($entry->created_at)->format('d/m/Y') }}
+                                    <td class="text-nowrap">{{ Carbon::parse($entry->created_at)->format('d-M-Y') }}
                                     </td>
-                                    <td class="text-nowrap">{{ Carbon::parse($entry->value_date)->format('d/m/Y') }}
+                                    <td class="text-nowrap">{{ Carbon::parse($entry->value_date)->format('d-M-Y') }}
                                     </td>
-                                    <td
+                                    <td align="right"
                                         class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
                                         @if ($entry->entryType->type === 'debit')
                                             {{ '-' . number_format($entry->amount, 2, '.', ',') }}
+                                        @else
+                                            --
                                         @endif
                                     </td>
-                                    <td
+                                    <td align="right"
                                         class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
                                         @if ($entry->entryType->type === 'credit')
-                                            {{ '+' . $entry->is_transfer ? number_format($entry->amount, 2, '.', ',') : '' }}
+                                            {{ number_format($entry->amount, 2, '.', ',') }}
+                                        @else
+                                            --
                                         @endif
                                     </td>
                                     <td class="fw-bold">
-                                        {{ $entry->is_reconciled ? number_format($entry->amount, 2, '.', ',') : 0 }}
+
                                     </td>
                                     <td>
                                         <div class="d-flex">
@@ -144,7 +148,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th colspan="4" class="text-start">Totals:</th>
+                                <th colspan="4" class="text-start">Total:</th>
                                 <th id="total-debit"></th>
                                 <th id="total-credit"></th>
                                 <th id="total-balance"></th>
@@ -155,7 +159,96 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="reports" role="tabpanel" aria-labelledby="reports">
-                No reports
+                <div class="table-responsive">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="table-action-btns">
+                            <button id="excelButtonStatement" class="btn text-white me-1" data-mdb-ripple-init
+                                style="background-color: #438162;" title="Export table to excel" type="button">
+                                <i class="fas fa-print me-1"></i>
+                                Excel
+                            </button>
+                            <button id="printButtonStatement" class="btn text-white ms-1" data-mdb-ripple-init
+                                style="background-color: #1179ce;" title="Click to print table" type="button">
+                                <i class="fas fa-print me-1"></i>
+                                print
+                            </button>
+                        </div>
+                        <form id="filter-statement" class="d-flex justify-content-end">
+                            <div class="input-group mb-3">
+                                <span class="input-group-text border-0" id="search-addon">start date</i></span>
+                                <input required type="date" name="start_date" class="form-control rounded"
+                                    id="startDate" onchange="updateMinEndDate()"
+                                    min="{{ Carbon::parse($entries->min('date'))->format('d-m-Y') }}"
+                                    max="{{ Carbon::parse($entries->max('date'))->format('d-m-Y') }}"
+                                    aria-label="Search" aria-describedby="search-addon" />
+                                <span class="input-group-text border-0" id="search-addon">end date</i></span>
+                                <input required type="date" name="end_date" class="form-control rounded"
+                                    id="endDate" max="{{ Carbon::parse($entries->max('date'))->format('d-m-Y') }}"
+                                    aria-label="Search" aria-describedby="search-addon" />
+                                <button type="submit" class="btn btn-primary mx-2 rounded-1">filter</button>
+                            </div>
+                            <script>
+                                function updateMinEndDate() {
+                                    const startDate = document.getElementById('startDate').value;
+                                    document.getElementById('endDate').min = startDate;
+                                }
+                            </script>
+                        </form>
+                    </div>
+                    <table class="table align-middle text-uppercase" id="table-statements">
+                        <thead class="text-capitalize">
+                            <tr>
+                                <th scope="col" title="PAYMENT DATE">date</th>
+                                <th scope="col">description</th>
+                                <th scope="col" title="REFERENCE NUMBER">ref. number</th>
+                                <th scope="col" title="VALUE DATE">value date</th>
+                                <th scope="col">debit</th>
+                                <th scope="col">credit</th>
+                                <th scope="col" title="ACCOUNT BALANCE">balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($entries as $entry)
+                                <tr
+                                    class="border-bottom table-{{ $entry->is_reconciled ? 'secondary' : '' }} border-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
+                                    <td class="text-nowrap">{{ Carbon::parse($entry->created_at)->format('d-M-Y') }}
+                                    </td>
+                                    <td>{{ $entry->description }}</td>
+                                    <td>{{ $entry->reference_number }}</td>
+                                    <td class="text-nowrap">{{ Carbon::parse($entry->value_date)->format('d-M-Y') }}
+                                    </td>
+                                    <td align="right"
+                                        class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
+                                        @if ($entry->entryType->type === 'debit')
+                                            {{ '-' . number_format($entry->amount, 2, '.', ',') }}
+                                        @else
+                                            --
+                                        @endif
+                                    </td>
+                                    <td align="right"
+                                        class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
+                                        @if ($entry->entryType->type === 'credit')
+                                            {{ number_format($entry->amount, 2, '.', ',') }}
+                                        @else
+                                            --
+                                        @endif
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            @empty
+                            @endforelse
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="4" class="text-start">Total:</th>
+                                <th id="total-debit"></th>
+                                <th id="total-credit"></th>
+                                <th id="total-balance"></th>
+                                <th colspan="2"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
             <div class="tab-pane fade" id="account" role="tabpanel" aria-labelledby="account">
                 <div class="container-fluid mt-5">
@@ -230,10 +323,40 @@
             history.pushState({}, '', `?tab=${tabIndex}`);
             // location.reload();
         });
+        $('#filter-statement').submit(function(e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+            const currentUrl = window.location.href;
+            const updatedUrl = `${currentUrl}&${formData}`;
+            window.location.href = updatedUrl;
+        });
+        if (urlParams.get('start_date') && urlParams.get('end_date')) {
+            $('[name="start_date"]').val(urlParams.get('start_date'));
+            $('[name="end_date"]').val(urlParams.get('end_date'));
+        }
+        const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'GHS',
+        });
+        var $balance = 0;
+        $('#table-account-entries tbody tr').each(function() {
+            var debit = Number.parseFloat(
+                $(this).find('td').eq(4).text().replace('--', '0')
+                .replace(',', '').replace('-', '').trim());
+            var credit = Number.parseFloat(
+                $(this).find('td').eq(5).text().replace('--', '0')
+                .replace(',', '').trim());
+
+            $balance += (credit - debit);
+
+            $(this).find('td').eq(6).text(formatter.format($balance.toFixed(2))
+                .toString().replace('GHS', ''));
+        });
         const ACCOUNT_WITH_ENTRIES_TABLE = new DataTable('#table-account-entries', {
             // responsive: true,
             order: [
-                [0, 'desc']
+                // [0, 'desc']
+                false
             ],
             columnDefs: [{
                     targets: [6],
@@ -273,11 +396,7 @@
                 }).data().reduce(function(a, b) {
                     return intVal(a) + intVal(b);
                 }, 0.00);
-                var balanceTotal = api.column(6, {
-                    page: 'current'
-                }).data().reduce(function(a, b) {
-                    return intVal(a) + intVal(b);
-                }, 0.00);
+                var balanceTotal = creditTotal - debitTotal;
                 $(api.column(4).footer()).addClass('text-danger fw-semibold d-inline-block').html(
                     formatter.format(debitTotal));
                 $(api.column(5).footer()).addClass('text-success fw-semibold').html(formatter
@@ -427,6 +546,136 @@
                     console.log(xhr.responseText);
                 }
             });
+        });
+        var $statementBalance = 0;
+        $('#table-statements tbody tr').each(function() {
+            var debit = Number.parseFloat(
+                $(this).find('td').eq(4).text().replace('--', '0')
+                .replace(',', '').replace('-', '').trim());
+            var credit = Number.parseFloat(
+                $(this).find('td').eq(5).text().replace('--', '0')
+                .replace(',', '').trim());
+
+            $statementBalance += (credit - debit);
+
+            $(this).find('td').eq(6).text(formatter.format($statementBalance.toFixed(2))
+                .toString().replace('GHS', ''));
+        });
+        const REPORTS_TABLE = new DataTable('#table-statements', {
+            // responsive: true,
+            order: [
+                // [0, 'desc']
+                false
+            ],
+            columnDefs: [{
+                    targets: [6],
+                    orderable: false
+                },
+                {
+                    targets: [6],
+                    orderable: false
+                }
+            ],
+            pageLength: 50,
+            // buttons: ['copy', 'excel', 'pdf', 'csv', 'print'],
+            footerCallback: function(row, data, start, end, display) {
+                var api = this.api(),
+                    data;
+                var intVal = function(i) {
+                    if (typeof i === 'string') {
+                        return i.replace(/[\$,-]/g, '') * 1.00;
+                    } else if (typeof i === 'number') {
+                        return i.toString().replace(/-/g, '') * 1.00;
+                    }
+                };
+                var total = api.column(5).data().reduce(function(a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0.00);
+                var formatter = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'GHS',
+                });
+                var debitTotal = api.column(4, {
+                    page: 'current'
+                }).data().reduce(function(a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0.00);
+                var creditTotal = api.column(5, {
+                    page: 'current'
+                }).data().reduce(function(a, b) {
+                    return intVal(a) + intVal(b);
+                }, 0.00);
+                var balanceTotal = creditTotal - debitTotal;
+                $(api.column(4).footer()).addClass('text-danger fw-semibold d-inline-block').html(
+                    formatter.format(debitTotal));
+                $(api.column(5).footer()).addClass('text-success fw-semibold').html(formatter
+                    .format(creditTotal));
+                $(api.column(6).footer()).addClass('fw-semibold').html(formatter.format(
+                    balanceTotal));
+            },
+            buttons: [{
+                    extend: 'excel',
+                    title: '{{ strtoupper($account_location->name . ' - ' . $account->bank_name) }} STATEMENT   ',
+                    filename: 'entries.excel',
+                    text: '<i class="fas fa-print me-1"></i> excel',
+                    className: 'btn text-white ms-1',
+                    message: 'Printed on ' + new Date().toLocaleString(),
+                    attr: {
+                        "style": 'background-color: #438162;color: #fff',
+                        "data-mdb-ripple-init": '',
+                    },
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    title: '{{ strtoupper($account_location->name . ' - ' . $account->bank_name) }} STATEMENT   ',
+                    filename: 'entries.pdf',
+                    orientation: 'portrait',
+                    pageSize: 'A4',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6],
+                    },
+                    text: '<i class="fas fa-print me-1"></i> pdf',
+                    className: 'btn text-white ms-1',
+                    message: 'Printed on ' + new Date().toLocaleString(),
+                    attr: {
+                        "style": 'background-color: #ee4a60;color: #fff',
+                        "data-mdb-ripple-init": '',
+                    }
+                },
+                {
+                    extend: 'print',
+                    text: '<i class="fas fa-print me-1"></i> print',
+                    className: 'btn text-white ms-1',
+                    title: '<span class="text-uppercase text-center"> {{ $account_location->name . ' - ' . $account->bank_name }} STATEMENT </span>',
+                    pageSize: 'A4',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6],
+                    },
+                    orientation: 'portrait',
+                    message: 'Printed on ' + new Date().toLocaleString(),
+                    attr: {
+                        "style": 'background-color: #44abff;color: #fff',
+                        "data-mdb-ripple-init": '',
+                    }
+                }
+            ],
+            language: {
+                paginate: {
+                    first: 'First',
+                    previous: 'Prev',
+                    next: 'Next',
+                    last: 'Last',
+                }
+            }
+        });
+        $('#excelButtonStatement').on('click', function() {
+            REPORTS_TABLE.buttons(0).trigger();
+        });
+        $('#printButtonStatement').on('click', function() {
+            REPORTS_TABLE.button(2).trigger();
         });
     });
 </script>

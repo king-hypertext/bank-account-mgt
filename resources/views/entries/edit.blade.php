@@ -36,10 +36,6 @@
                         <select required class="form-select select2 @error('account') is-invalid @enderror" name="account"
                             id="account">
                             <option selected value="{{ $entry->account->id }}">{{ $entry->account->bank_name }}</option>
-                            {{-- @forelse ($accounts as $account)
-                                <option value="{{ $account->id }}">{{ $account->bank_name }}</option>
-                            @empty
-                            @endforelse --}}
                         </select>
                     </div>
                 </fieldset>
@@ -48,11 +44,15 @@
                     <div class="col-sm-10">
                         <select required name="entry_type" class="form-select @error('entry_type') is-invalid @enderror"
                             id="entry_type">
-                            @forelse ($entry_types as $entry_type)
-                                <option {{ $entry_type->id === $entry->entry_type_id ? 'selected' : '' }}
-                                    value="{{ $entry_type->id }}">{{ $entry_type->type }}</option>
-                            @empty
-                            @endforelse
+                            @if ($entry->is_reconciled)
+                                <option selected value="{{ $entry->entry_type_id }}">{{ $entry->entryType->type }}</option>
+                            @else
+                                @forelse ($entry_types as $entry_type)
+                                    <option {{ $entry_type->id === $entry->entry_type_id ? 'selected' : '' }}
+                                        value="{{ $entry_type->id }}">{{ $entry_type->type }}</option>
+                                @empty
+                                @endforelse
+                            @endif
                         </select>
                     </div>
                 </div>
@@ -60,8 +60,9 @@
                     <label for="amount" class="col-sm-2 col-form-label text-uppercase">amount</label>
                     <div class="col-sm-10">
                         <input {{ $entry->is_reconciled === true ? 'readonly disabled' : '' }} required type="text"
-                            step="0.01" class="currencyInput form-control @error('amount') is-invalid @enderror"
-                            id="amount" name="amount" value="{{ $entry->amount }}" />
+                            onfocus="this.select()" step="0.01"
+                            class="currencyInput form-control @error('amount') is-invalid @enderror" id="amount"
+                            name="amount" value="{{ $entry->amount }}" />
                         @error('amount')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

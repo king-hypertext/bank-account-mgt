@@ -37,7 +37,8 @@
         </a>
     </li>
     <li class="nav-menu">
-        <a href="#" class="nav-menu-link " data-mdb-ripple-init data-mdb-ripple-color="light">
+        <a href="{{ route('trash.list', $account_location->id) }}" class="nav-menu-link " data-mdb-ripple-init
+            data-mdb-ripple-color="light">
             <span class="d-flex align-items-center">
                 <i class="bx bx-trash  "></i>
             </span>

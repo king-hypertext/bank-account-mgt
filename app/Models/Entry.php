@@ -15,6 +15,7 @@ class Entry extends Model
         'account_id',
         'entry_type_id',
         'amount',
+        'balance',
         'description',
         'reference_number',
         'is_reconciled',
@@ -60,5 +61,9 @@ class Entry extends Model
             return $this->whereIn('id', $id)->update(['is_reconciled' => true]);
         }
         return $this->where('id', $id)->update(['is_reconciled' => true]);
+    }
+    public function scopeReconciled()
+    {
+        return $this->where('is_reconciled', true);  // Assuming the column is of boolean type in the database table
     }
 }

@@ -53,7 +53,7 @@
                 </button>
             </div>
             <div class="table-responsive">
-                <table class="table align-middle text-uppercase" id="table-entries">
+                <table class="table table-bordered align-middle text-uppercase" id="table-entries">
                     <thead class="text-uppercase">
                         <tr>
                             {{-- <th>S/N</th> --}}
@@ -77,6 +77,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {{-- {{ $entries }} --}}
                         @forelse ($entries as $entry)
                             <tr
                                 class="border-bottom table-{{ $entry->is_reconciled ? 'secondary' : '' }} border-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
@@ -90,29 +91,28 @@
                                 </td>
                                 {{-- <td>{{ $entry->account->accountLocation->name }}</td> --}}
                                 {{-- <td>{{ $entry->account->accountType->type }}</td> --}}
-                                <td class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
+                                <td align="right"
+                                    class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
                                     @if ($entry->entryType->type === 'debit')
                                         {{ '-' . number_format($entry->amount, 2, '.', ',') }}
+                                    @else
+                                        --
                                     @endif
                                 </td>
-                                <td class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
+                                <td align="right"
+                                    class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
                                     @if ($entry->entryType->type === 'credit')
                                         {{ number_format($entry->amount, 2, '.', ',') }}
+                                    @else
+                                        --
                                     @endif
                                 </td>
                                 <td class="fw-bold">
-                                    @if ($entry->is_reconciled)
-                                        @if ($entry->entryType->type === 'debit')
-                                            {{ '-' . number_format($entry->amount, 2, '.', ',') }}
-                                        @else
-                                            {{ number_format($entry->amount, 2, '.', ',') }}
-                                        @endif
-                                    @else
-                                        {{ number_format($entry->amount, 2, '.', ',') }}
-                                    @endif
                                 </td>
-                                <td class="text-nowrap">{{ Carbon::parse($entry->date)->format('d/m/Y') }}</td>
-                                <td class="text-nowrap">{{ Carbon::parse($entry->value_date)->format('d/m/Y') }}</td>
+                                <td class="text-nowrap text-capitalize">{{ Carbon::parse($entry->date)->format('d-M-Y') }}
+                                </td>
+                                <td class="text-nowrap text-capitalize">
+                                    {{ Carbon::parse($entry->value_date)->format('d-M-Y') }}</td>
                                 <td>
                                     <div class="d-flex">
                                         @if ($entry->is_transfer)
@@ -161,9 +161,12 @@
             </div>
         </div>
     </div>
-    <script>;
+    <script>
         $(document).ready(function() {
-
+            const formatter = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'GHS',
+            });
             $('button.delete-entry').click(function(e) {
                 e.preventDefault();
                 var id = $(this).data('id'),
@@ -282,11 +285,27 @@
                     }
                 });
             });
+            // Calculate and set balance for each row
+            var $balance = 0;
+            $('#table-entries tbody tr').each(function() {
+                var debit = Number.parseFloat(
+                    $(this).find('td').eq(3).text().replace('--', '0')
+                    .replace(',', '').replace('-', '').trim());
+                var credit = Number.parseFloat(
+                    $(this).find('td').eq(4).text().replace('--', '0')
+                    .replace(',', '').replace('-', '').trim());
+
+                $balance += (credit - debit);
+                $(this).find('td').eq(5).text(formatter.format($balance.toFixed(2)).toString().replace(
+                    'GHS', ''));
+            });
+
             const ACCOUNTS_TABLE = new DataTable('#table-entries', {
-                // responsive: true,
-                // order: [
-                //     [0, 'desc']
-                // ],
+                responsive: true,
+                order: [
+                    // [6, 'asc']
+                    false
+                ],
 
                 columnDefs: [{
                         targets: [9],
@@ -312,10 +331,7 @@
                     var total = api.column(5).data().reduce(function(a, b) {
                         return intVal(a) + intVal(b);
                     }, 0.00);
-                    var formatter = new Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: 'GHS',
-                    });
+
                     var debitTotal = api.column(3, {
                         page: 'current'
                     }).data().reduce(function(a, b) {
@@ -334,10 +350,10 @@
                     // }, 0.00);
                     $(api.column(3).footer()).addClass('text-danger fw-semibold d-inline-block').html(
                         formatter.format(debitTotal));
-                    $(api.column(4).footer()).addClass('text-success fw-semibold').html(formatter
-                        .format(creditTotal));
-                    $(api.column(5).footer()).addClass('fw-semibold').html(formatter.format(
-                        balanceTotal));
+                    $(api.column(4).footer()).addClass('text-success fw-semibold')
+                        .html(formatter.format(creditTotal));
+                    $(api.column(5).footer()).addClass('fw-semibold')
+                        .html(formatter.format(balanceTotal));
                 },
                 buttons: [{
                         extend: 'excel',

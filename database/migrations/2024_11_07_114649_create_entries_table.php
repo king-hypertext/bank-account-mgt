@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('entries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('entry_type_id')->constrained();
-            $table->foreignId('account_id')->constrained();
+            $table->foreignId('account_id')->constrained()->cascadeOnDelete();
             $table->unsignedBigInteger('transfer_id')->nullable()->index('transfer_id');
             $table->foreign('transfer_id')->references('id')->on('transfers')->cascadeOnDelete();
             $table->date('value_date');

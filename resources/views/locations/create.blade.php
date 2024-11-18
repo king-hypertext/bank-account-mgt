@@ -126,7 +126,7 @@
                     <label for="initial_amount" class="col-form-label text-uppercase col-sm-2 pt-0">initial
                         amount</label>
                     <div class="col-sm-10">
-                        <input required type="text"
+                        <input required type="text" value="0.00" onfocus="this.select()"
                             class="currencyInput form-control @error('initial_amount') is-invalid @enderror"
                             id="initial_amount" name="initial_amount" />
                         @error('initial_amount')

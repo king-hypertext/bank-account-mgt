@@ -10,7 +10,7 @@
                         <a href="#">{{ $account_location->name }}</a>
                     </li>
                     <li class="breadcrumb-item text-uppercase">
-                        <a href="#">bank list</a>
+                        <a href="#">TRASH</a>
                     </li>
                     <li class="breadcrumb-item text-uppercase active" aria-current="page">
                         <a href="#">accounts</a>
@@ -42,7 +42,7 @@
                 </button>
             </div>
             <div class="table-responsive">
-                <table id="table-accounts" class="table align-middle text-uppercase">
+                <table id="deleted-accounts-table" class="table align-middle text-uppercase">
                     <thead class="text-uppercase">
                         <tr class="border-bottom border-info">
                             <th>S/N</th>
@@ -51,9 +51,8 @@
                             <th scope="col">account status</th>
                             {{-- <th scope="col">location</th> --}}
                             <th scope="col">account type</th>
-                            <th scope="col" title="ENTRIES TO RECONCILE">ETR</th>
                             <th scope="col">balance</th>
-                            <th scope="col">date created</th>
+                            <th scope="col">date deleted</th>
                             <th scope="col">operations</th>
                         </tr>
                     </thead>
@@ -69,43 +68,21 @@
                                 <td>{{ $account->accountStatus->status }}</td>
                                 {{-- <td>{{ $account->accountLocation->name }}</td> --}}
                                 <td>{{ $account->accountType->type }}</td>
-                                <td>
-                                    <a role="button"
-                                        href="{{ $account->entries()->entriesToReconcile()->count() > 0 ? route('account.show', [$account_location->id, $account->id]) : '#' }}"
-                                        title="GO TO ENTRIES"
-                                        class="btn btn-secondary p-2 {{ $account->entries()->entriesToReconcile()->count() > 0 ? '' : 'disabled' }}">{{ $account->entries()->entriesToReconcile()->count() }}
-                                    </a>
-                                </td>
                                 <td class="text-{{ $account->balance >= 0 ? 'success' : 'danger' }} fw-bold">
                                     {{ number_format($account->balance, 2, '.', ',') }}
                                 </td>
-                                <td>{{ Carbon::parse($account->created_at)->format('Y-m-d') }}</td>
+                                <td>{{ Carbon::parse($account->deleted_at)->format('Y-m-d') }}</td>
                                 <td>
-                                    <a title="View" class="btn btn- p-1" title="View"
-                                        href="{{ route('account.show', [$account_location->id, $account->id]) }}">
-                                        <i class="fas text-info fa-eye"></i>
-                                    </a>
-                                    <a title="Edit" class="btn btn- p-1"
-                                        href="{{ route('account.edit', [$account_location->id, $account->id]) }}">
-                                        <i class="fas text-warning fa-pen-to-square"></i>
-                                    </a>
-                                    <button title="Delete Account" data-id="{{ $account->id }}"
-                                        data-url="{{ route('account.destroy', [$account_location->id, $account->id]) }}"
-                                        class="btn btn- p-1 mx-1 delete-account">
-                                        <i class="fas text-danger fa-trash-alt"></i>
+                                    <button title="Restore Account" data-id="{{ $account->id }}"
+                                        data-url="{{ route('account.restore', [$account_location->id, $account->id]) }}"
+                                        class="btn btn- p-1 mx-1 restore-account">
+                                        <i class="fas text-danger fa-recycle"></i>
                                     </button>
                                 </td>
                             </tr>
                         @empty
                         @endforelse
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="6" class="text-start">Total:</th>
-                            <th id="total-balance"></th>
-                            <th colspan="2"></th>
-                        </tr>
-                    </tfoot>
+                    </tbody>                    
                 </table>
             </div>
 
@@ -115,17 +92,17 @@
 @section('script')
     <script>
         $(document).ready(function() {
-            $('button.delete-account').click(function() {
+            $('button.restore-account').click(function() {
                 const id = $(this).data('id');
                 const url = $(this).data('url');
                 const $button = $(this);
                 const $loader = $('.loader-overlay');
-                if (!confirm('Confirm delete account')) {
+                if (!confirm('Confirm restore account')) {
                     return false;
                 }
                 $.ajax({
                     url,
-                    method: 'DELETE',
+                    method: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}'
                     },
@@ -137,7 +114,7 @@
                         if (response.success) {
                             window.open(response.url, '_self');
                         } else {
-                            alert(`Failed to delete account: ${response.message}`);
+                            alert(`Failed to restore account: ${response.message}`);
                         }
                         $button.prop('disabled', false);
                         $loader.hide();
@@ -149,49 +126,45 @@
                     }
                 });
             });
-            const ACCOUNTS_TABLE = new DataTable('#table-accounts', {
+            const ACCOUNTS_TABLE = new DataTable('#deleted-accounts-table', {
                 responsive: true,
                 order: [
-                    [0, 'asc']
+                    false
                 ],
                 columnDefs: [{
-                        targets: [8],
+                        targets: [7],
                         orderable: false
                     },
-                    // {
-                    //     targets: [7],
-                    //     orderable: false
-                    // }
                 ],
                 // dom: '<"row"<"col-md-4"l><"col-md-4"B><"col-md-4"f>>rt<"row"<"col-md-4"i><"col-md-4"p><"col-md-4"n>>',
-                buttons: ['copy', 'excel', 'pdf', 'csv', 'print'],
-                footerCallback: function(row, data, start, end, display) {
-                    var api = this.api(),
-                        data;
-                    var intVal = function(i) {
-                        if (typeof i === 'string') {
-                            return i.replace(/[\$,]/g, '') * 1.00;
-                        } else if (typeof i === 'number') {
-                            return i;
-                        }
-                    };
-                    var total = api.column(6).data().reduce(function(a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0.00);
-                    var formatter = new Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency: 'GHS',
-                    });
-                    var pageTotal = api.column(6, {
-                        page: 'current'
-                    }).data().reduce(function(a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0.00);
-                    $(api.column(6).footer()).addClass('fw-semibold').html(formatter.format(pageTotal));
-                },
+                // buttons: ['copy', 'excel', 'pdf', 'csv', 'print'],
+                // footerCallback: function(row, data, start, end, display) {
+                //     var api = this.api(),
+                //         data;
+                //     var intVal = function(i) {
+                //         if (typeof i === 'string') {
+                //             return i.replace(/[\$,]/g, '') * 1.00;
+                //         } else if (typeof i === 'number') {
+                //             return i;
+                //         }
+                //     };
+                //     var total = api.column(6).data().reduce(function(a, b) {
+                //         return intVal(a) + intVal(b);
+                //     }, 0.00);
+                //     var formatter = new Intl.NumberFormat('en-US', {
+                //         style: 'currency',
+                //         currency: 'GHS',
+                //     });
+                //     var pageTotal = api.column(6, {
+                //         page: 'current'
+                //     }).data().reduce(function(a, b) {
+                //         return intVal(a) + intVal(b);
+                //     }, 0.00);
+                //     $(api.column(6).footer()).addClass('fw-semibold').html(formatter.format(pageTotal));
+                // },
                 buttons: [{
                         extend: 'excel',
-                        title: '{{ strtoupper($account_location->name) }} Bank List',
+                        title: '{{ strtoupper($account_location->name) }} DELETED ACCOUNTS',
                         filename: 'bank-list.excel',
                         text: '<i class="fas fa-print me-1"></i> excel',
                         className: 'btn text-white ms-1',
@@ -206,7 +179,7 @@
                     },
                     {
                         extend: 'pdf',
-                        title: '{{ strtoupper($account_location->name) }} Bank List',
+                        title: '{{ strtoupper($account_location->name) }} DELETED ACCOUNTS',
                         filename: 'bank-list.pdf',
                         orientation: 'portrait',
                         pageSize: 'A4',
@@ -225,7 +198,7 @@
                         extend: 'print',
                         text: '<i class="fas fa-print me-1"></i> print',
                         className: 'btn text-white ms-1',
-                        title: '<span class="text-uppercase text-center"> {{ $account_location->name }} Bank List</span>',
+                        title: '<span class="text-uppercase text-center"> {{ $account_location->name }} DELETED ACCOUNTS</span>',
                         pageSize: 'A4',
                         exportOptions: {
                             columns: [0, 1, 2, 3, 4, 5, 6, 7],
