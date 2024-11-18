@@ -6,6 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="{{ asset('assets/font-awesome/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/mdb/css/mdb.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/app/loader.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/jquery/jquery-ui.min.css') }}">
+    <script src="{{ asset('assets/jquery/external/jquery.js') }}"></script>
     <style>
         INPUT:-webkit-autofill,
         SELECT:-webkit-autofill,
@@ -15,6 +18,54 @@
             box-shadow: none !important;
             ;
             /* -webkit-box-shadow: 0 0 20px 20px #fff inset !important; */
+        }
+
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1096;
+            overflow: hidden !important;
+        }
+
+        .loader-overlay .loader-text {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24pt;
+            text-align: center;
+            margin-top: 20px;
+            animation: blink 2s infinite;
+            animation-timing-function: ease-in-out;
+            color: #fff;
+            position: absolute;
+            bottom: 35%;
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @media print {
+            table tr th {
+                text-transform: uppercase !important;
+            }
         }
     </style>
     <title>APP | {{ strtoupper($page_title) ?? 'Login' }}</title>
@@ -37,6 +88,17 @@
 @endif
 
 <body class="container">
+    <div class="loader-overlay">
+        <div class="loadingio-spinner-dual-ring-nq4q5u6dq7r">
+            <div class="ldio-x2uulkbinbj">
+                <div></div>
+                <div>
+                    <div></div>
+                </div>
+            </div>
+        </div>
+        <div class="loader-text text-white fs-2">Initializing App...</div>
+    </div>
     <div class="card mt-5">
         <div class="card-body">
             <div class="card-header border-bottom-0">
@@ -179,13 +241,43 @@
         </div>
     </div>
     <script src="{{ asset('assets/mdb/js/mdb.umd.min.js') }}"></script>
+    <script src="{{ asset('assets/jquery/jquery.inputmask.min.js') }}"></script>
+    <script src="{{ asset('assets/jquery/jquery-ui.min.js') }}"></script>
     {{-- <script src="{{ asset('assets/axios/axios.js') }}"></script> --}}
     {{-- <script src="{{ asset('assets/auth.js') }}"></script> --}}
     <script>
+        $(document).ready(function() {
+            $('.loader-overlay').hide();
+        });
         const form = document.getElementById('account-form');
         form && form.addEventListener('submit', function(e) {
             e.submitter.classList.add('disabled');
             return 1;
+        });
+        $('.currencyInput').inputmask({
+            alias: 'currency',
+            prefix: '',
+            rightAlign: false,
+            digits: 2,
+            digitsOptional: false,
+            groupSeparator: ',',
+            autoGroup: true,
+            removeMaskOnSubmit: true,
+            unmaskAsNumber: true
+        });
+
+        $('.currencyInput').keypress(function(e) {
+            var charCode = (e.which) ? e.which : event.keyCode;
+            if ((charCode < 48 || charCode > 57) && charCode !== 46) {
+                return false;
+            }
+        });
+
+        $('input[type="date"]').datepicker({
+            dateFormat: 'yy-mm-dd', // Adjust the date format as needed 
+            changeMonth: true, // Allows changing the month 
+            changeYear: true, // Allows changing the year 
+            showButtonPanel: true // Adds buttons to clear or close the datepicker 
         });
     </script>
 </body>

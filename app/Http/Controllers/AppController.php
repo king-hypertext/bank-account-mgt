@@ -83,11 +83,11 @@ class AppController extends Controller
             'balance' => 0,
             'created_at' => $request->created_at ?? now(),
         ]);
-        if ($request->initial_amount > 0) {
+        if ($request->initial_amount > 0) { 
             $account->entries()->create([
                 'entry_type_id' => EntryType::CREDIT_ID,
                 'amount' => $request->initial_amount ?? 0,
-                'balance' => $request->initial_amount,
+                'date' => now(),
                 'description' => 'initial deposit',
                 'reference_number' => now()->format('Ymdhisv'),
                 'value_date' => $request->created_at ?? now(),

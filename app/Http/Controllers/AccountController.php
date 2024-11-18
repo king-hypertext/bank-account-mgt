@@ -84,6 +84,7 @@ class AccountController extends Controller
             'entry_type_id' => EntryType::CREDIT_ID,
             'amount' => $request->initial_amount,
             'description' => 'intial deposit',
+            'date' => $request->created_at,
             'reference_number' => now()->format('Ymdhisv'),
             'value_date' => $request->created_at ?? now(),
         ]);
@@ -103,7 +104,7 @@ class AccountController extends Controller
             abort(403, 'Account does not belongs to this location.');
         }
         $account->load('entries');
-        $entries = $account->entries()->reconciled()->orderBy('created_at', 'ASC')->get();
+        $entries = $account->entries()->where('is_reconciled', true)->orderBy('created_at', 'ASC')->get();
         if ($request->filled(['start_date', 'end_date'])) {
             $start_date = $request->start_date;
             $end_date = $request->end_date;

@@ -72,7 +72,6 @@
                                     <input class="form-check-input" name="check-all" id="check-all" title="Select all"
                                         type="checkbox" />
                                 </div>
-
                             </th>
                         </tr>
                     </thead>
@@ -301,7 +300,7 @@
             });
 
             const ACCOUNTS_TABLE = new DataTable('#table-entries', {
-                responsive: true,
+                // responsive: true,
                 order: [
                     // [6, 'asc']
                     false

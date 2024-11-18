@@ -15,7 +15,7 @@ class Entry extends Model
         'account_id',
         'entry_type_id',
         'amount',
-        'balance',
+        // 'balance',
         'description',
         'reference_number',
         'is_reconciled',

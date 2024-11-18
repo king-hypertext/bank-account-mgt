@@ -51,21 +51,20 @@ class EntryController extends Controller
     {
         $account = AccountLocation::findOrFail($location)->accounts()->findOrFail($request->account);
 
-        $lastEntry = $account->entries()->latest()->first();
-        $balance = $lastEntry->balance;
+        // $lastEntry = $account->entries()->latest()->first();
+        // $balance = $lastEntry->balance;
 
-        if ($request->entry_type == EntryType::CREDIT_ID) {
-            $balance += $request->amount;
-        } else {
-            $balance -= $request->amount;
-        }
+        // if ($request->entry_type == EntryType::CREDIT_ID) {
+        //     $balance += $request->amount;
+        // } else {
+        //     $balance -= $request->amount;
+        // }
 
         $account->entries()->create([
             'entry_type_id' => $request->entry_type,
             'description' => $request->description,
             'amount' => $request->amount,
             'value_date' => $request->value_date ?? now(),
-            'balance' => $balance,
             'reference_number' => $request->reference_number,
             'date' => $request->date ?? now(),
         ]);
@@ -95,49 +94,77 @@ class EntryController extends Controller
         return view('entries.edit', compact('entry', 'account_location', 'page_title', 'entry_types'));
     }
 
+    // public function update(int $location, UpdateEntryRequest $request, Entry $entry)
+    // {
+    //     $account = AccountLocation::findOrFail($location)->accounts()->findOrFail($entry->account_id);
+
+    //     // Validate entry ownership
+    //     if ($entry->account_id !== $account->id) {
+    //         abort(403, 'Account does not belong to this location.');
+    //     }
+
+    //     // Handle unreconciled entries by deleting and creating a new entry
+    //     if (!$entry->is_reconciled) {
+    //         $entry->delete();
+    //         $lastEntry = $account->entries()->latest()->first();
+    //         $balance = $lastEntry->balance;
+
+    //         if ($request->entry_type == EntryType::CREDIT_ID) {
+    //             $balance += $request->amount;
+    //         } else {
+    //             $balance -= $request->amount;
+    //         }
+    //         $newEntry = $account->entries()->create([
+    //             'entry_type_id' => $request->entry_type,
+    //             'description' => $request->description,
+    //             'amount' => $request->amount,
+    //             'balance' => $balance,
+    //             'value_date' => $request->value_date ?? now(),
+    //             'reference_number' => $request->reference_number,
+    //             'date' => $request->date ?? now(),
+    //         ]);
+    //         $newEntry->balance = $account->entries()->latest()->first()->balance;
+    //         $newEntry->save();
+    //     } else {
+    //         // Handle reconciled entries by updating the existing entry
+    //         $entry->update([
+    //             'description' => $request->description,
+    //             'value_date' => $request->input('value-date') ?? now(),
+    //             'date' => $request->input('date') ?? now(),
+    //         ]);
+    //     }
+
+    //     return redirect()->route('entries.index', $location)->with('success', 'Entry updated successfully');
+    // }
     public function update(int $location, UpdateEntryRequest $request, Entry $entry)
     {
-        $account = AccountLocation::findOrFail($location)->accounts()->findOrFail($entry->account_id);
-
-        // Validate entry ownership
-        if ($entry->account_id !== $account->id) {
-            abort(403, 'Account does not belong to this location.');
+        // return $entry;
+        if ($entry->account->accountLocation->id !== $location) {
+            abort(403, 'Account does not belongs to this location.');
         }
-
-        // Handle unreconciled entries by deleting and creating a new entry
-        if (!$entry->is_reconciled) {
-            $entry->delete();
-            $lastEntry = $account->entries()->latest()->first();
-            $balance = $lastEntry->balance;
-
-            if ($request->entry_type == EntryType::CREDIT_ID) {
-                $balance += $request->amount;
-            } else {
-                $balance -= $request->amount;
-            }
-            $newEntry = $account->entries()->create([
-                'entry_type_id' => $request->entry_type,
-                'description' => $request->description,
-                'amount' => $request->amount,
-                'balance' => $balance,
-                'value_date' => $request->value_date ?? now(),
-                'reference_number' => $request->reference_number,
-                'date' => $request->date ?? now(),
-            ]);
-            $newEntry->balance = $account->entries()->latest()->first()->balance;
-            $newEntry->save();
-        } else {
-            // Handle reconciled entries by updating the existing entry
-            $entry->update([
+        // dd($request->all());
+        if ($entry->is_reconciled) {
+            $fields = [
                 'description' => $request->description,
                 'value_date' => $request->input('value-date') ?? now(),
                 'date' => $request->input('date') ?? now(),
-            ]);
+            ];
+        } else {
+            $fields = [
+                'entry_type_id' => $request->entry_type,
+                'description' => $request->description,
+                'amount' => $request->amount,
+                'value_date' => $request->input('value-date') ?? now(),
+                'reference_number' => $request->reference_number,
+                'date' => $request->input('date') ?? now(),
+            ];
         }
+        // Update entry
+        $entry->update($fields);
 
-        return redirect()->route('entries.index', $location)->with('success', 'Entry updated successfully');
+        return redirect()->back()->with('success', 'Entry updated successfully');
+        // return response()->json(['success' => true, 'url' => $url]);
     }
-
     /**
      * Remove the specified resource from storage.
      */

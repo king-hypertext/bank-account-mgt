@@ -195,7 +195,57 @@
                             </script>
                         </form>
                     </div>
-                    <table class="table align-middle text-uppercase" id="table-statements">
+                    <style>
+                        @media print {
+                            .print-table-bordered {
+                                border-collapse: collapse !important;
+                                -webkit-print-color-adjust: exact !important;
+                                -moz-print-color-adjust: exact !important;
+                                -o-print-color-adjust: exact !important;
+                            }
+
+                            .print-table-bordered th,
+                            .print-table-bordered td,
+                            .print-table-bordered {
+                                border: 1px solid #000;
+                                border-right: 1px solid #000 !important;
+                            }
+
+                            #table-statements {
+                                page-break-after: always;
+                            }
+
+                            #table-statements td:nth-child(1) {
+                                padding: 2px !important;
+                            }
+
+                            #table-statements tr {
+                                page-break-inside: avoid;
+                            }
+
+                            #table-statements tr:nth-child(even) {
+                                background-color: #f2f2f2 !important;
+                            }
+
+                            #table-statements tr:last-child {
+                                page-break-after: avoid;
+                            }
+
+                            #table-statements tr:first-child {
+                                page-break-before: always;
+                            }
+
+                            #table-statements td:first-child {
+                                white-space: nowrap !important;
+                            }
+
+                            .text-nowrap {
+                                white-space: nowrap !important;
+                            }
+
+                        }
+                    </style>
+                    <table class="table print-table-bordered align-middle text-capitalize" id="table-statements">
                         <thead class="text-capitalize">
                             <tr>
                                 <th scope="col" title="PAYMENT DATE">date</th>
@@ -633,7 +683,7 @@
                     title: '{{ strtoupper($account_location->name . ' - ' . $account->bank_name) }} STATEMENT   ',
                     filename: 'entries.pdf',
                     orientation: 'portrait',
-                    pageSize: 'A4',
+                    pageSize: 'Letter',
                     exportOptions: {
                         columns: [0, 1, 2, 3, 4, 5, 6],
                     },
@@ -659,7 +709,17 @@
                     attr: {
                         "style": 'background-color: #44abff;color: #fff',
                         "data-mdb-ripple-init": '',
-                    }
+                    },
+                    customize: function(win) {
+                        // Set paper margin
+                        $(win.document).find('table').addClass('print-table-bordered');
+                        $(win.document).find('table').addClass('print-table-bordered');
+                        $(win.document.body).css('margin-left', '0').css('margin-right', '0')
+                            .css('padding', '0');
+
+                        // Add table borders
+                    },
+                    messageBottom: "Statement of entries"
                 }
             ],
             language: {
