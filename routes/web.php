@@ -10,8 +10,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::get('login', [AuthController::class, 'login'])->name('login');
+Route::get('login', [AuthController::class, 'login'])->name('login')->middleware('init');
 Route::post('login', [AuthController::class, 'authenticate'])->name('authenticate');
+Route::get('init', [AppController::class, 'init'])->name('init');
+Route::post('init', [AppController::class, 'storeAdmin'])->name('init.post');
 
 Route::middleware(['auth'])->group(function () {
     Route::permanentRedirect('/', 'l');

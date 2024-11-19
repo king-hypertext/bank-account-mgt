@@ -6,11 +6,40 @@ use App\Models\AccountLocation;
 use App\Models\AccountStatus;
 use App\Models\AccountType;
 use App\Models\EntryType;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 
 class AppController extends Controller
 {
+
+    public function init()
+    {
+        $page_title = 'initialize banking system';
+        return view('app.init', compact('page_title'));
+    }
+    public function storeAdmin(Request $request)
+    {
+        $request->validate(
+            [
+                'username' => 'required|string|min:4',
+                'password' => 'required|string|min:6',
+                'confirm_password' => 'required|same:password',
+            ],
+            [
+                'confirm_password.same' => 'Passwords do not match.',
+                'password.min' => 'Password must be at least 6 characters long.',
+                'username.min' => 'Username must be at least 4 characters long.',
+            ]
+        );
+        $user = User::create([
+            'username' => $request->username,
+            'password' => bcrypt($request->password),
+        ]);
+        Auth::login($user, true);
+        return to_route('l.create')->with('user', $user->username);
+    }
     public function index()
     {
         $page_title = 'home';
@@ -22,6 +51,7 @@ class AppController extends Controller
     }
     public function createLocation()
     {
+        Artisan::call('db:seed');
         $page_title = 'set up location for account';
         $account_types = AccountType::all(['id', 'type']);
         $account_statuses = AccountStatus::all(['id', 'status']);
@@ -83,7 +113,7 @@ class AppController extends Controller
             'balance' => 0,
             'created_at' => $request->created_at ?? now(),
         ]);
-        if ($request->initial_amount > 0) { 
+        if ($request->initial_amount > 0) {
             $account->entries()->create([
                 'entry_type_id' => EntryType::CREDIT_ID,
                 'amount' => $request->initial_amount ?? 0,

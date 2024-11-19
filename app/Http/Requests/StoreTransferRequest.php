@@ -32,8 +32,8 @@ class StoreTransferRequest extends FormRequest
     {
         return  [
             'notes.required' => 'Description field is required',
-            'to_account.different' => 'FROM ACCOUNT and TO ACCOUNT must not be the same',
-            'from_account.different' => 'TO ACCOUNT and FROM ACCOUNT must not be the same'
+            'to_account.different' => 'Transfer can only be done between different accounts',
+            // 'from_account.different' => 'TO ACCOUNT and FROM ACCOUNT must not be the same'
         ];
     }
 }

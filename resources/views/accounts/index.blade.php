@@ -71,7 +71,7 @@
                                 <td>{{ $account->accountType->type }}</td>
                                 <td>
                                     <a role="button"
-                                        href="{{ $account->entries()->entriesToReconcile()->count() > 0 ? route('account.show', [$account_location->id, $account->id]) : '#' }}"
+                                        href="{{ $account->entries()->entriesToReconcile()->count() > 0 ? route('account.show', [$account_location->id, $account->id, 'tab' => 'entries-tab']) : '#' }}"
                                         title="GO TO ENTRIES"
                                         class="btn btn-secondary p-2 {{ $account->entries()->entriesToReconcile()->count() > 0 ? '' : 'disabled' }}">{{ $account->entries()->entriesToReconcile()->count() }}
                                     </a>

@@ -20,9 +20,9 @@ class EntryController extends Controller
         $account_location = AccountLocation::findOrFail($location);
         if ($request->filled('account')) {
             $account = Account::findOrFail($request->account);
-            $entries = $account_location->accounts->entries->orderBy('created_at', 'ASC')->get();
+            $entries = $account_location->accounts->entries->orderBy('created_at', 'DESC')->get();
         } else {
-            $entries = Entry::belongsToAccounts($account_location->accounts->pluck('id')->toArray())->orderBy('created_at', 'ASC')->get();
+            $entries = Entry::belongsToAccounts($account_location->accounts->pluck('id')->toArray())->orderBy('created_at', 'DESC')->get();
         }
         return view('entries.index', compact('entries', 'account_location'));
     }
@@ -50,15 +50,6 @@ class EntryController extends Controller
     public function store(int $location, StoreEntryRequest $request)
     {
         $account = AccountLocation::findOrFail($location)->accounts()->findOrFail($request->account);
-
-        // $lastEntry = $account->entries()->latest()->first();
-        // $balance = $lastEntry->balance;
-
-        // if ($request->entry_type == EntryType::CREDIT_ID) {
-        //     $balance += $request->amount;
-        // } else {
-        //     $balance -= $request->amount;
-        // }
 
         $account->entries()->create([
             'entry_type_id' => $request->entry_type,
@@ -94,48 +85,6 @@ class EntryController extends Controller
         return view('entries.edit', compact('entry', 'account_location', 'page_title', 'entry_types'));
     }
 
-    // public function update(int $location, UpdateEntryRequest $request, Entry $entry)
-    // {
-    //     $account = AccountLocation::findOrFail($location)->accounts()->findOrFail($entry->account_id);
-
-    //     // Validate entry ownership
-    //     if ($entry->account_id !== $account->id) {
-    //         abort(403, 'Account does not belong to this location.');
-    //     }
-
-    //     // Handle unreconciled entries by deleting and creating a new entry
-    //     if (!$entry->is_reconciled) {
-    //         $entry->delete();
-    //         $lastEntry = $account->entries()->latest()->first();
-    //         $balance = $lastEntry->balance;
-
-    //         if ($request->entry_type == EntryType::CREDIT_ID) {
-    //             $balance += $request->amount;
-    //         } else {
-    //             $balance -= $request->amount;
-    //         }
-    //         $newEntry = $account->entries()->create([
-    //             'entry_type_id' => $request->entry_type,
-    //             'description' => $request->description,
-    //             'amount' => $request->amount,
-    //             'balance' => $balance,
-    //             'value_date' => $request->value_date ?? now(),
-    //             'reference_number' => $request->reference_number,
-    //             'date' => $request->date ?? now(),
-    //         ]);
-    //         $newEntry->balance = $account->entries()->latest()->first()->balance;
-    //         $newEntry->save();
-    //     } else {
-    //         // Handle reconciled entries by updating the existing entry
-    //         $entry->update([
-    //             'description' => $request->description,
-    //             'value_date' => $request->input('value-date') ?? now(),
-    //             'date' => $request->input('date') ?? now(),
-    //         ]);
-    //     }
-
-    //     return redirect()->route('entries.index', $location)->with('success', 'Entry updated successfully');
-    // }
     public function update(int $location, UpdateEntryRequest $request, Entry $entry)
     {
         // return $entry;
@@ -170,10 +119,6 @@ class EntryController extends Controller
      */
     public function destroy(int $location, Request $request, Entry $entry)
     {
-        // // Authorization check
-        // if ($location && $entry->account->accountLocation->id !== $location) {
-        //     abort(403, 'Account does not belong to this location.');
-        // }
         $accountLocation = AccountLocation::find($location);
         if (!$accountLocation) {
             abort(404, 'Account location not found.');
@@ -194,6 +139,7 @@ class EntryController extends Controller
         return response()->json(['success' => true, 'url' => $url]);
     }
 
+    //function working properly
     public function reconcile(int $location, Request $request)
     {
         // Validation
@@ -213,7 +159,8 @@ class EntryController extends Controller
             ->whereHas('account.accountLocation', function ($query) use ($location) {
                 $query->where('id', $location);
             })->get()->each(function ($entry) {
-                $entry->account->updateBalance($entry->amount, $entry->entryType->type);
+                $entry->entryType->type === 'debit' ? ($entry->account->balance -= $entry->amount) : ($entry->account->balance += $entry->amount);
+                $entry->account->update();
                 if ($entry->is_transfer) {
                     $transferEntries = Entry::where('transfer_id', $entry->transfer->id)->pluck('id')->toArray();
                     $entry->reconcile($transferEntries);

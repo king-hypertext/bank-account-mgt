@@ -101,6 +101,12 @@
     </div>
     <div class="card mt-5">
         <div class="card-body">
+            @session('user')
+                <div class="alert alert-success my-2" role="alert">
+                    Welcome <strong>{{ strtoupper(session('user')) }}</strong>, create a new location and account to get
+                    started.
+                </div>
+            @endsession
             <div class="card-header border-bottom-0">
                 <h3 class="text-center fs-3">CREATE LOCATION WITH ACCOUNT</h3>
             </div>

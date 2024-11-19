@@ -36,7 +36,7 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button data-mdb-tab-init class="nav-link" id="reports-tab" role="tab" aria-controls="reports"
-                    aria-selected="false" data-mdb-target="#reports">reports</button>
+                    aria-selected="false" data-mdb-target="#reports">reports & statements</button>
             </li>
         </ul>
         <!-- Tabs navs -->
