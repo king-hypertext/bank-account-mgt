@@ -64,8 +64,18 @@
                                 <td>
                                     {{ $loop->iteration }}
                                 </td>
-                                <td>{{ $account->name }}</td>
-                                <td>{{ $account->account_number }}</td>
+                                <td>
+                                    <a class="card-link" title="View Bank Details"
+                                        href="{{ route('account.show', [$account_location->id, $account->id]) }}">
+                                        {{ $account->name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a class="card-link" title="View Bank Details"
+                                        href="{{ route('account.show', [$account_location->id, $account->id]) }}">
+                                        {{ $account->account_number }}
+                                    </a>
+                                </td>
                                 <td>{{ $account->accountStatus->status }}</td>
                                 {{-- <td>{{ $account->accountLocation->name }}</td> --}}
                                 <td>{{ $account->accountType->type }}</td>
@@ -79,12 +89,12 @@
                                 <td class="text-{{ $account->balance >= 0 ? 'success' : 'danger' }} fw-bold">
                                     {{ number_format($account->balance, 2, '.', ',') }}
                                 </td>
-                                <td>{{ Carbon::parse($account->created_at)->format('Y-m-d') }}</td>
+                                <td>{{ Carbon::parse($account->created_at)->format('Y-m-d H:i') }}</td>
                                 <td>
-                                    <a title="View" class="btn btn- p-1" title="View"
+                                    {{-- <a title="View" class="btn btn- p-1" title="View"
                                         href="{{ route('account.show', [$account_location->id, $account->id]) }}">
                                         <i class="fas text-info fa-eye"></i>
-                                    </a>
+                                    </a> --}}
                                     <a title="Edit" class="btn btn- p-1"
                                         href="{{ route('account.edit', [$account_location->id, $account->id]) }}">
                                         <i class="fas text-warning fa-pen-to-square"></i>

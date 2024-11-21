@@ -162,6 +162,12 @@ class EntryController extends Controller
                 $entry->entryType->type === 'debit' ? ($entry->account->balance -= $entry->amount) : ($entry->account->balance += $entry->amount);
                 $entry->account->update();
                 if ($entry->is_transfer) {
+                    $entry->entryType->type === 'debit' ? ($entry->transfer->toAccount->balance -= $entry->amount) : ($entry->transfer->toAccount->balance += $entry->amount);
+                    $entry->transfer->toAccount->update();
+
+                    $entry->entryType->type === 'credit'? ($entry->transfer->fromAccount->balance -= $entry->amount) : ($entry->transfer->fromAccount->balance += $entry->amount);
+                    $entry->transfer->fromAccount->update();
+
                     $transferEntries = Entry::where('transfer_id', $entry->transfer->id)->pluck('id')->toArray();
                     $entry->reconcile($transferEntries);
                 }

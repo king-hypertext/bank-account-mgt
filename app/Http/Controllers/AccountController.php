@@ -47,12 +47,12 @@ class AccountController extends Controller
         // return $acronym;
         $words = explode(' ', trim($str));
 
-        if (count($words) == 1) {
+        if (count($words) <= 2) {
             return strtoupper($str);
         } else {
             $acronym = '';
             foreach ($words as $word) {
-                if (strlen($word) > 3) {
+                if (strlen($word) >= 4) {
                     $acronym .= strtoupper($word[0]);
                 }
             }
@@ -137,7 +137,16 @@ class AccountController extends Controller
             abort(403, 'Account does not belongs to this location.');
         }
 
-        $previousInitialAmount = $account->initial_amount;
+        if ($account->entries->isEmpty() && $request->initial_amount > 0) {
+            $account->entries()->create([
+                'entry_type_id' => EntryType::CREDIT_ID,
+                'amount' => $request->initial_amount,
+                'description' => 'intial deposit',
+                'date' => $request->created_at ?? now(),
+                'reference_number' => now()->format('Ymdhisv'),
+                'value_date' => $request->created_at ?? now(),
+            ]);
+        }
         $account->update([
             'account_number' => $request->account_number,
             'bank_name' => $request->bank_name,
@@ -146,14 +155,14 @@ class AccountController extends Controller
             'account_status_id' => $request->account_status,
             'account_description' => $request->account_description,
             'account_address' => $account->accountLocation->name . ' - ' . $this->getAcronym($request->bank_name),
-            // 'initial_amount' => $request->initial_amount,
+            'initial_amount' => $request->initial_amount,
             'created_at' => $request->created_at ?? now(),
         ]);
 
-        if ($request->initial_amount !== $previousInitialAmount) {
-            $difference = $request->initial_amount - $previousInitialAmount;
-            $account->updateBalance($difference, 'credit');
-        }
+        // if ($request->initial_amount <> $previousInitialAmount) {
+        //     $difference = $request->initial_amount - $previousInitialAmount;
+        //     $account->updateBalance($difference, 'credit');
+        // }
 
         return back()->with('success', 'Account updated successfully');
     }
@@ -189,6 +198,7 @@ class AccountController extends Controller
             $clonedAccount->account_location_id = $clonedAccountLocation->id;
             $clonedAccount->account_number = $this->generateAccountNumber();
             $clonedAccount->account_address = $account->name;
+            $clonedAccount->initial_amount = 0;
             $clonedAccount->balance = 0;
             $clonedAccount->save();
         }

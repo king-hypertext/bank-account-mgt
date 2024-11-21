@@ -10,7 +10,7 @@ function onDOMContentLoaded() {
         selectID('date-time').innerHTML = new Date().toLocaleTimeString('en-US', {
             weekday: 'short',
             year: 'numeric',
-            month: 'long',
+            month: 'short',
             day: 'numeric',
             hour: 'numeric',
             minute: 'numeric',

@@ -53,7 +53,7 @@
                 </button>
             </div>
             <div class="table-responsive">
-                <table class="table table-bordered align-middle text-uppercase" id="table-entries">
+                <table class="table align-middle text-uppercase" id="table-entries">
                     <thead class="text-uppercase">
                         <tr>
                             {{-- <th>S/N</th> --}}
@@ -86,7 +86,10 @@
                                 <td>{{ $entry->reference_number }}</td>
                                 <td>{{ $entry->description }}</td>
                                 <td class="text-uppercase">
-                                    {{ $entry->account->name }}
+                                    <a href="{{ route('account.show', [$account_location->id, $entry->account->id]) }}"
+                                        class="card-link">
+                                        {{ $entry->account->name }}
+                                    </a>
                                 </td>
                                 {{-- <td>{{ $entry->account->accountLocation->name }}</td> --}}
                                 {{-- <td>{{ $entry->account->accountType->type }}</td> --}}

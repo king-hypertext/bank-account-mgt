@@ -74,7 +74,7 @@
                                 <td>{{ $transfer->notes }}</td>
                                 <td>
                                     {{-- <span class="currency"> --}}
-                                        {{ number_format($transfer->amount, 2, '.', ',') }}
+                                    {{ number_format($transfer->amount, 2, '.', ',') }}
                                     {{-- </span> --}}
                                 </td>
                                 {{-- <td>{{ $transfer->reference_number }}</td> --}}
@@ -117,31 +117,33 @@
                 const $button = $(this);
                 var id = $(this).data('id');
                 var url = $(this).data('url');
-                // $.ajax({
-                //     url,
-                //     type: 'DELETE',
-                //     data: {
-                //         _token: '{{ csrf_token() }}'
-                //     },
-                //     beforeSend: function() {
-                //         $button.prop('disabled', true);
-                //         $loader.show().find('.loader-text').text('Deleting...');
-                //     },
-                //     success: function() {
-                //         $button.prop('disabled', false);
-                //         $loader.hide();
-                //         if (response.success) {
-                //             window.open(response.url, '_self');
-                //         } else {
-                //             alert(`Failed to delete account: ${response.message}`);
-                //         }
-                //     },
-                //     error: function() {
-                //         $button.prop('disabled', false);
-                //         $loader.hide();
-                //         console.log('Failed to delete transfer');
-                //     }
-                // });
+                $.ajax({
+                    url,
+                    type: 'DELETE',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+                        $button.prop('disabled', true);
+                        $loader.show().find('.loader-text').text('Deleting...');
+                    },
+                    success: function(response) {
+                        $button.prop('disabled', false);
+                        $loader.hide();
+                        if (response.success) {
+                            window.open(response.url, '_self');
+                        } else {
+                            alert(`Failed to delete transfer: ${response.error}`);
+                        }
+                    },
+                    error: function(e) {
+                        $button.prop('disabled', false);
+                        $loader.hide();
+                        console.log('Failed to delete transfer');
+                        console.log(e);
+
+                    }
+                });
             });
             const TRANSFER_TABLE = new DataTable('#table-transfer', {
                 // responsive: true,

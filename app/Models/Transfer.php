@@ -42,5 +42,16 @@ class Transfer extends Model
     {
         return $this->belongsTo(TransferType::class);  // Assuming TransferType Model has a foreign key 'transfer_type_id'
     }
-    
+    public function entries()
+    {
+        return $this->hasMany(Entry::class);  // Assuming Entry Model has a foreign key 'transfer_id'
+    }
+    public function fromEntry()
+    {
+        return $this->hasOneThrough(Entry::class, $this->fromAccount, 'id', 'transfer_id'); // Assuming Entry Model has a foreign key
+    }
+    public function toEntry()
+    {
+        return $this->hasOneThrough(Entry::class, $this->toAccount, 'id', 'transfer_id'); // Assuming Entry Model has a foreign key
+    }
 }

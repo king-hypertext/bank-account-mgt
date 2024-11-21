@@ -79,14 +79,14 @@
 
     .sidebar {
         background-color: #000655;
-        padding: 20px;
+        /* padding: 20px; */
         position: fixed;
         color: #fff;
         top: 0;
         left: 0;
         bottom: 0;
         width: 100%;
-        width: 320px;
+        width: 280px;
         height: 100%;
         z-index: 1090;
         transition: all 0.3s ease-in-out;
@@ -102,7 +102,7 @@
     .nav-menu-link {
         color: #fff;
         text-decoration: none;
-        padding: 12px;
+        padding: 8px;
         display: flex;
         cursor: pointer;
         align-items: center;
@@ -126,13 +126,13 @@
 
     .main {
         padding: 12px;
-        margin-left: 320px;
+        margin-left: 280px;
     }
 
     @media (max-width: 768px) {
 
         .sidebar {
-            left: -320px;
+            left: -280px;
         }
 
         .sidebar.show {

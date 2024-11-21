@@ -47,7 +47,6 @@ class TransferController extends Controller
             'description' => $description,
             'amount' => $amount,
             'reference_number' => $this->generateRef(),
-            'value_date' => $date ?? now(),
             'is_transfer' => true,
             'transfer_id' => $transferId,
             'date' => $date ?? now(),
@@ -74,7 +73,7 @@ class TransferController extends Controller
     public function store(int $location, StoreTransferRequest $request)
     {
         $account_location = AccountLocation::findOrFail($location);
-        $transfer_type = ($account_location->accounts()->whereIn('id', [$request->from_account, $request->to_account])->count() > 1)
+        $transfer_type = ($account_location->openAccounts()->whereIn('id', [$request->from_account, $request->to_account])->count() > 1)
             ? TransferType::INTERNAL_ID
             : TransferType::EXTERNAL_ID;
 
@@ -92,7 +91,7 @@ class TransferController extends Controller
         }
         // dd($request->all(), $from_account, $to_account, $transfer_type);
 
-        DB::transaction(function () use ($from_account_id, $to_account_id, $amount, $transfer_type, $notes, $date, $request, $to_account, $from_account, $value_date) {
+        DB::transaction(function () use ($from_account_id, $to_account_id, $amount, $transfer_type, $notes, $date, $to_account, $from_account, $value_date) {
             $transfer = Transfer::create([
                 'from_account_id' => $from_account_id,
                 'to_account_id' => $to_account_id,
@@ -101,8 +100,8 @@ class TransferController extends Controller
                 'transfer_type_id' => $transfer_type,
                 'transfer_date' => $date ?? now(),
             ]);
-            $this->createEntry($from_account_id, $transfer->id, EntryType::DEBIT_ID, $request->amount, $request->date, $value_date, 'Transfer to ' . $to_account->name);
-            $this->createEntry($to_account_id, $transfer->id, EntryType::CREDIT_ID, $request->amount, $request->date, $value_date, 'Transfer from ' . $from_account->name);
+            $this->createEntry($from_account_id, $transfer->id, EntryType::DEBIT_ID, $amount, $date, $value_date, 'Transfer to ' . $to_account->name . ' - ' . $to_account->accountLocation->name);
+            $this->createEntry($to_account_id, $transfer->id, EntryType::CREDIT_ID, $amount, $date, $value_date, 'Transfer from ' . $from_account->name . ' - ' . $from_account->accountLocation->name);
         });
         $route = $request->has('exit') ? 'transfers.index' : 'transfers.create';
         return redirect()->to(route($route, ['location' => $location]))->with('success', 'Transfer created successfully');
@@ -251,38 +250,14 @@ class TransferController extends Controller
      */
     public function destroy(int $location, Transfer $transfer)
     {
-        // return $transfer;
-        // $account_location = AccountLocation::findOrFail($location);
-        // $transfer_type = ($account_location->accounts()->whereIn('id', [$request->from_account, $request->to_account])->count() > 1)
-        //     ? TransferType::INTERNAL_ID
-        //     : TransferType::EXTERNAL_ID;
-
-        // $from_account = Account::findOrFail($request->from_account);
-        // $to_account = Account::findOrFail($request->to_account);
-        // $amount = $request->amount;
-        // $from_account_id = $from_account->id;
-        // $to_account_id = $to_account->id;
-        // $notes = $request->notes;
-        // $date = $request->date;
-        // // Validate balance before transfer
-        // if ($from_account->balance < $amount) {
-        //     return back()->with('error', 'Insufficient Account Balance');
-        // }
-        // // dd($request->all(), $from_account, $to_account, $transfer_type);
-
-        // DB::transaction(function () use ($from_account_id, $to_account_id, $amount, $transfer_type, $notes, $date, $request, $to_account, $from_account) {
-        //     $transfer = Transfer::create([
-        //         'from_account_id' => $from_account_id,
-        //         'to_account_id' => $to_account_id,
-        //         'amount' => $amount,
-        //         'notes' => $notes,
-        //         'transfer_type_id' => $transfer_type,
-        //         'transfer_date' => $date ?? now(),
-        //     ]);
-        //     // $this->createEntry($from_account_id, $transfer->id, EntryType::DEBIT_ID, $request->amount, $request->date, 'Transfer to ' . $to_account->name);
-        //     // $this->createEntry($to_account_id, $transfer->id, EntryType::CREDIT_ID, $request->amount, $request->date, 'Transfer from ' . $from_account->name);
-        // });
-        // $route = $request->has('exit') ? 'transfers.index' : 'transfers.create';
-        // return redirect()->to(route($route, ['location' => $location]))->with('success', 'Transfer created successfully');
+        $account_location = AccountLocation::findOrFail($location);
+        $url =  redirect()->back()->with('success', 'Transfer successfully removed')->getTargetUrl();
+        if (!$transfer->fromEntry->is_reconciled && !$transfer->toEntry->is_reconciled) {
+            $transfer->fromEntry->delete();
+            $transfer->toEntry->delete();
+            $transfer->delete();
+            return response()->json(['success' => true, 'url' => $url]);
+        }
+        return response()->json(['success' => false, 'url' => $url, 'error' => 'Transfer cannot be removed as it has been reconciled']);
     }
 }
