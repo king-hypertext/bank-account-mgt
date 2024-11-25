@@ -234,19 +234,7 @@
                 }
                 updateButtonState();
             });
-            $('table#table-entries input[type="checkbox"].check-entry').change(function() {
-                const checkboxId = $(this).val();
-                const isChecked = $(this).is(':checked');
-
-                if (isChecked) {
-                    entries.push(checkboxId);
-                } else {
-                    entries = entries.filter(id => id !== checkboxId);
-                }
-                updateButtonState();
-                console.log(entries);
-
-            });
+         
             $('button.reconcile-entries').click(function() {
                 // Reconcile entries
                 if (!confirm('Confirm Reconcile Entries')) {

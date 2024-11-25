@@ -32,8 +32,9 @@ class TransferController extends Controller
     {
         $page_title = 'create transfer';
         $account_location = AccountLocation::findOrFail($location);
-        $accounts = Account::open()->orderBy('updated_at', 'desc')->get();
-        return view('transfers.create', compact('account_location', 'page_title', 'accounts'));
+        $to_accounts = Account::open()->orderBy('bank_name', 'desc')->get();
+        $from_accounts = Account::open()->orderBy('bank_name', 'asc')->get();
+        return view('transfers.create', compact('account_location', 'page_title', 'to_accounts', 'from_accounts'));
     }
 
     private function generateRef(): int

@@ -13,7 +13,7 @@
                         <a href="{{ route('account.home', $account_location->id) }}">accounts</a>
                     </li>
                     <li class="breadcrumb-item text-uppercase">
-                        <a href="#">
+                        <a href="{{ route('account.show', [$account_location->id, $account->id]) }}">
                             {{ $account->bank_name }}
                         </a>
                     </li>

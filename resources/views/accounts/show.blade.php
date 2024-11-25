@@ -22,6 +22,69 @@
 @section('name')
     {{ $account->bank_name . ': ' . $account->account_number }}
 @endsection
+<style>
+    /* @media print {
+        .print-table-bordered {
+            border-collapse: collapse !important;
+            -webkit-print-color-adjust: exact !important;
+            -moz-print-color-adjust: exact !important;
+            -o-print-color-adjust: exact !important;
+        }
+
+        .print-table-bordered th,
+        .print-table-bordered td,
+        .print-table-bordered {
+            border: 1px solid #000;
+            border-right: 1px solid #000 !important;
+        }
+
+        #table-statements {
+            page-break-after: always;
+        }
+
+        #table-statements td:nth-child(1) {
+            padding: 2px !important;
+        }
+
+        #table-statements tr {
+            page-break-inside: avoid;
+        }
+
+        #table-statements tr:nth-child(even) {
+            background-color: #f2f2f2 !important;
+        }
+
+        #table-statements tr:last-child {
+            page-break-after: avoid;
+        }
+
+        #table-statements tr:first-child {
+            page-break-before: always;
+        }
+
+        #table-statements td:first-child {
+            white-space: nowrap !important;
+        }
+
+        .text-nowrap {
+            white-space: nowrap !important;
+        }
+
+    } */
+    @media print {
+        .p-bold {
+            font-weight: 600 !important;
+            color: #000000 !important;
+            text-transform: uppercase !important;
+        }
+
+        table th {
+            font-weight: 700 !important;
+            color: #000000 !important;
+            background: rgb(214, 214, 214);
+        }
+    }
+</style>
 <div class="card shadow-1-soft">
     <div class="card-body">
         <!-- Tabs navs -->
@@ -76,7 +139,7 @@
                 </div>
                 <div class="table-responsive">
                     <table class="table align-middle text-uppercase" id="table-account-entries">
-                        <thead class="text-uppercase">
+                        <thead class="text-uppercase p-bold">
                             <tr>
                                 <th scope="col" title="REFERENCE NUMBER">ref. number</th>
                                 <th scope="col">description</th>
@@ -87,6 +150,10 @@
                                 <th scope="col" title="ACCOUNT BALANCE">balance</th>
                                 <th scope="col">actions</th>
                                 <th>
+                                    <div class="form-check">
+                                        <input class="form-check-input" name="check-all" id="check-all"
+                                            title="Select all" type="checkbox" />
+                                    </div>
                                 </th>
                             </tr>
                         </thead>
@@ -135,12 +202,13 @@
                                         </div>
                                     </td>
                                     <td class="m-0">
+                                        @if (!$entry->is_reconciled)
                                         <div class="form-check-inline m-0">
                                             <input class="form-check-input check-account-entry" autocomplete="off"
                                                 {{ $entry->is_reconciled ? 'disabled' : '' }}
-                                                value="{{ $entry->is_reconciled ? '' : $entry->id }}"
-                                                type="checkbox" />
+                                                value="{{ $entry->is_reconciled ? '' : $entry->id }}" type="checkbox" />
                                         </div>
+                                    @endif
                                     </td>
                                 </tr>
                             @empty
@@ -195,58 +263,9 @@
                             </script>
                         </form>
                     </div>
-                    <style>
-                        @media print {
-                            .print-table-bordered {
-                                border-collapse: collapse !important;
-                                -webkit-print-color-adjust: exact !important;
-                                -moz-print-color-adjust: exact !important;
-                                -o-print-color-adjust: exact !important;
-                            }
 
-                            .print-table-bordered th,
-                            .print-table-bordered td,
-                            .print-table-bordered {
-                                border: 1px solid #000;
-                                border-right: 1px solid #000 !important;
-                            }
-
-                            #table-statements {
-                                page-break-after: always;
-                            }
-
-                            #table-statements td:nth-child(1) {
-                                padding: 2px !important;
-                            }
-
-                            #table-statements tr {
-                                page-break-inside: avoid;
-                            }
-
-                            #table-statements tr:nth-child(even) {
-                                background-color: #f2f2f2 !important;
-                            }
-
-                            #table-statements tr:last-child {
-                                page-break-after: avoid;
-                            }
-
-                            #table-statements tr:first-child {
-                                page-break-before: always;
-                            }
-
-                            #table-statements td:first-child {
-                                white-space: nowrap !important;
-                            }
-
-                            .text-nowrap {
-                                white-space: nowrap !important;
-                            }
-
-                        }
-                    </style>
                     <table class="table print-table-bordered align-middle text-capitalize" id="table-statements">
-                        <thead class="text-capitalize">
+                        <thead class="text-capitalize p-bold">
                             <tr>
                                 <th scope="col" title="PAYMENT DATE">date</th>
                                 <th scope="col">description</th>
@@ -409,11 +428,11 @@
                 false
             ],
             columnDefs: [{
-                    targets: [6],
+                    targets: [7],
                     orderable: false
                 },
                 {
-                    targets: [6],
+                    targets: [8],
                     orderable: false
                 }
             ],
@@ -542,6 +561,7 @@
                 });
             }
         });
+
         updateButtonState();
 
         function updateButtonState() {
@@ -549,6 +569,7 @@
                 'table#table-account-entries input[type="checkbox"].check-account-entry:checked');
             const reconcileButton = $('button.reconcile-entries'); // Replace with your button selector
             const deleteButton = $('button.delete-entries'); // Replace with your button selector
+            console.log(checkboxes);
 
             if (checkboxes.length > 0) {
                 reconcileButton.removeAttr('disabled');
@@ -557,26 +578,39 @@
                 reconcileButton.attr('disabled', 'disabled');
                 deleteButton.attr('disabled', 'disabled');
             }
-            // if (checkboxes.length > 1) {
-            //     deleteButton.removeAttr('disabled');
-            // } else {
-            //     deleteButton.attr('disabled', 'disabled');
-            // }
         }
         var entries = []; // Declare array outside function scope
-        // Listen for checkbox changes
+        $('input[name="check-all"]').change(function() {
+            const checkAll = $(this).is(':checked');
+            console.log(checkAll);
+
+            $('table#table-account-entries input[type="checkbox"].check-account-entry').each(
+        function() {
+                $(this).prop('checked', checkAll);
+                if (checkAll) {
+                    entries.push($(this).val());
+                }
+            });
+            if (!checkAll) {
+                entries = [];
+            }
+            updateButtonState();
+        });
         $('table#table-account-entries input[type="checkbox"].check-account-entry').change(function() {
             const checkboxId = $(this).val();
             const isChecked = $(this).is(':checked');
+
             if (isChecked) {
                 entries.push(checkboxId);
             } else {
                 entries = entries.filter(id => id !== checkboxId);
+                if (entries.length == 0) {
+                    $('input[name="check-all"]').prop('checked', false);
+                }
             }
             updateButtonState();
-            console.log(entries);
-
         });
+
         $('button.reconcile-entries').click(function() {
             // Reconcile entries
             if (!confirm('Confirm Reconcile Entries')) {
@@ -605,7 +639,6 @@
             var credit = Number.parseFloat(
                 $(this).find('td').eq(5).text().replace('--', '0')
                 .replace(',', '').trim());
-
             $statementBalance += (credit - debit);
 
             $(this).find('td').eq(6).text(formatter.format($statementBalance.toFixed(2))
@@ -710,15 +743,15 @@
                         "style": 'background-color: #44abff;color: #fff',
                         "data-mdb-ripple-init": '',
                     },
-                    customize: function(win) {
-                        // Set paper margin
-                        $(win.document).find('table').addClass('print-table-bordered');
-                        $(win.document).find('table').addClass('print-table-bordered');
-                        $(win.document.body).css('margin-left', '0').css('margin-right', '0')
-                            .css('padding', '0');
+                    // customize: function(win) {
+                    //     // Set paper margin
+                    //     // $(win.document).find('table').addClass('print-table-bordered');
+                    //     // $(win.document).find('table').addClass('print-table-bordered');
+                    //     $(win.document.body).css('margin-left', '0').css('margin-right', '0')
+                    //         .css('padding', '0');
 
-                        // Add table borders
-                    },
+                    //     // Add table borders
+                    // },
                     messageBottom: "Statement of entries"
                 }
             ],

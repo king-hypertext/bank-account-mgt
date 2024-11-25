@@ -108,7 +108,7 @@ class AccountController extends Controller
         if ($request->filled(['start_date', 'end_date'])) {
             $start_date = $request->start_date;
             $end_date = $request->end_date;
-            $entries = $account->entries()->reconciled()->whereBetween('value_date', [$start_date, $end_date])->orderBy('created_at', 'ASC')->get();
+            $entries = $account->entries()->where('is_reconciled', true)->whereBetween('value_date', [$start_date, $end_date])->orderBy('created_at', 'ASC')->get();
         }
         return view('accounts.show', compact('account', 'account_location', 'page_title', 'entries'));
     }

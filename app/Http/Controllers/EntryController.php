@@ -20,9 +20,9 @@ class EntryController extends Controller
         $account_location = AccountLocation::findOrFail($location);
         if ($request->filled('account')) {
             $account = Account::findOrFail($request->account);
-            $entries = $account_location->accounts->entries->orderBy('created_at', 'DESC')->get();
+            $entries = $account_location->accounts->entries->orderBy('created_at', 'ASC')->get();
         } else {
-            $entries = Entry::belongsToAccounts($account_location->accounts->pluck('id')->toArray())->orderBy('created_at', 'DESC')->get();
+            $entries = Entry::belongsToAccounts($account_location->accounts->pluck('id')->toArray())->orderBy('created_at', 'ASC')->get();
         }
         return view('entries.index', compact('entries', 'account_location'));
     }

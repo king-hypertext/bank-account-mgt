@@ -42,7 +42,7 @@
                 </button>
             </div>
             <div class="table-responsive">
-                <table class="table table-bordered align-middle" id="table-transfer">
+                <table class="table align-middle" id="table-transfer">
                     <thead class="text-uppercase">
                         <tr>
                             <th>S/N </th>

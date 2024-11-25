@@ -48,7 +48,7 @@
                     <div class="col-sm-10">
                         <select required class="form-select select2 @error('from_account') is-invalid @enderror"
                             name="from_account" id="from_account">
-                            @forelse ($accounts as $account)
+                            @forelse ($to_accounts as $account)
                                 <option value="{{ $account->id }}">
                                     {{ $account->name . ' - ' . $account->accountLocation->name }}</option>
                             @empty
@@ -61,7 +61,7 @@
                     <div class="col-sm-10">
                         <select required class="form-select select2 @error('to_account') is-invalid @enderror"
                             name="to_account" id="to_account">
-                            @forelse ($accounts as $account)
+                            @forelse ($from_accounts as $account)
                                 <option value="{{ $account->id }}">
                                     {{ $account->name . ' - ' . $account->accountLocation->name }}</option>
                             @empty
@@ -123,6 +123,7 @@
 @endsection
 @section('script')
     <script>
+        $('textarea[name="notes"]').val('transfer');
         const form = document.getElementById('create-entry');
         form && form.addEventListener('submit', function(e) {
             e.submitter.classList.add('disabled');
