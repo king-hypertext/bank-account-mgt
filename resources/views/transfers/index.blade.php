@@ -148,7 +148,7 @@
             const TRANSFER_TABLE = new DataTable('#table-transfer', {
                 // responsive: true,
                 order: [
-                    [0, 'desc']
+                    false
                 ],
                 columnDefs: [{
                         targets: [7],

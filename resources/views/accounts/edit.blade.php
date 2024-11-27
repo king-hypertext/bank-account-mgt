@@ -101,11 +101,10 @@
                     <label for="initial_amount" class="col-form-label text-uppercase col-sm-2 pt-0">initial
                         amount</label>
                     <div class="col-sm-10">
-                        <input {{ $account->entries->isEmpty() ? '' : 'readonly disabled' }} required type="text"
-                            onfocus="this.select()" step="0.01"
-                            value="{{ @old('initial_amount') ?? $account->initial_amount }}"
-                            class="currencyInput form-control @error('initial_amount') is-invalid @enderror"
-                            id="initial_amount" name="initial_amount" />
+                        <input {{ $account->entries->isEmpty() ? '' : 'readonly' }} required type="text"
+                            onfocus="this.select()" step="0.01" id="initial_amount" name="initial_amount"
+                            value="{{ $account->initial_amount ?? '0' }}"
+                            class="currencyInput form-control @error('initial_amount') is-invalid @enderror" />
                         @error('initial_amount')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
