@@ -93,7 +93,7 @@
                 <fieldset class="row mb-3">
                     <label for="date" class="col-form-label text-uppercase col-sm-2 pt-0">payment date</label>
                     <div class="col-sm-10">
-                        <input required type="date" value="{{ now()->format('Y-m-d') }}"
+                        <input required type="text" value="{{ now()->format('d/m/Y') }}"
                             class="form-control @error('date') is-invalid @enderror" name="date" id="date"
                             placeholder="" />
                         @error('date')
@@ -104,7 +104,7 @@
                 <fieldset class="row mb-3">
                     <label for="value-date" class="col-form-label text-uppercase col-sm-2 pt-0">value date</label>
                     <div class="col-sm-10">
-                        <input type="date" value="{{ now()->format('Y-m-d') }}"
+                        <input type="text" value="{{ now()->format('d/m/Y') }}"
                             class="form-control @error('value-date') is-invalid @enderror" name="value-date" id="value-date"
                             placeholder="" />
                         @error('value-date')

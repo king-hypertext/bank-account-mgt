@@ -99,7 +99,7 @@
                     <label for="initial_amount" class="col-form-label text-uppercase col-sm-2 pt-0">initial
                         amount</label>
                     <div class="col-sm-10">
-                        <input required type="text"  value="0" onfocus="this.select()" step="0.01"
+                        <input required type="text" value="0" onfocus="this.select()" step="0.01"
                             class="currencyInput form-control @error('initial_amount') is-invalid @enderror"
                             id="initial_amount" name="initial_amount" />
                         @error('initial_amount')
@@ -125,7 +125,7 @@
                 <fieldset class="row mb-3">
                     <label for="created_at" class="col-form-label text-uppercase col-sm-2 pt-0">date</label>
                     <div class="col-sm-10">
-                        <input required type="date" value="{{ now()->format('Y-m-d') }}"
+                        <input required type="text" value="{{ now()->format('d/m/Y') }}" placeholder="DD/MM/YYYY"
                             class="form-control @error('created_at') is-invalid @enderror" name="created_at" id="created_at"
                             placeholder="" />
                         @error('created_at')

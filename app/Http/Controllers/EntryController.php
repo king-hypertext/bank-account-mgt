@@ -50,14 +50,15 @@ class EntryController extends Controller
     public function store(int $location, StoreEntryRequest $request)
     {
         $account = AccountLocation::findOrFail($location)->accounts()->findOrFail($request->account);
-
+        $value_date = now()->parse($request->input('value_date'))->toDateString();
+        $date = now()->parse($request->input('date'))->toDateString();
         $account->entries()->create([
             'entry_type_id' => $request->entry_type,
             'description' => $request->description,
             'amount' => $request->amount,
-            'value_date' => $request->value_date ?? now(),
+            'value_date' => $value_date ?? now(),
             'reference_number' => $request->reference_number,
-            'date' => $request->date ?? now(),
+            'date' => $date ?? now(),
         ]);
         $routeName = $request->has('exist') ? 'entries.index' : 'entries.create';
         return redirect()->route($routeName, $location)->with('success', 'Entry created successfully');
@@ -92,20 +93,22 @@ class EntryController extends Controller
             abort(403, 'Account does not belongs to this location.');
         }
         // dd($request->all());
+        $value_date = now()->parse($request->input('value_date'))->toDateString();
+        $date = now()->parse($request->input('date'))->toDateString();
         if ($entry->is_reconciled) {
             $fields = [
                 'description' => $request->description,
-                'value_date' => $request->input('value-date') ?? now(),
-                'date' => $request->input('date') ?? now(),
+                'value_date' => $value_date ?? now(),
+                'date' => $date ?? now(),
             ];
         } else {
             $fields = [
                 'entry_type_id' => $request->entry_type,
                 'description' => $request->description,
                 'amount' => $request->amount,
-                'value_date' => $request->input('value-date') ?? now(),
+                'value_date' => $value_date ?? now(),
                 'reference_number' => $request->reference_number,
-                'date' => $request->input('date') ?? now(),
+                'date' => $date ?? now(),
             ];
         }
         // Update entry
@@ -165,7 +168,7 @@ class EntryController extends Controller
                     $entry->entryType->type === 'debit' ? ($entry->transfer->toAccount->balance -= $entry->amount) : ($entry->transfer->toAccount->balance += $entry->amount);
                     $entry->transfer->toAccount->update();
 
-                    $entry->entryType->type === 'credit'? ($entry->transfer->fromAccount->balance -= $entry->amount) : ($entry->transfer->fromAccount->balance += $entry->amount);
+                    $entry->entryType->type === 'credit' ? ($entry->transfer->fromAccount->balance -= $entry->amount) : ($entry->transfer->fromAccount->balance += $entry->amount);
                     $entry->transfer->fromAccount->update();
 
                     $transferEntries = Entry::where('transfer_id', $entry->transfer->id)->pluck('id')->toArray();

@@ -23,54 +23,6 @@
     {{ $account->bank_name . ': ' . $account->account_number }}
 @endsection
 <style>
-    /* @media print {
-        .print-table-bordered {
-            border-collapse: collapse !important;
-            -webkit-print-color-adjust: exact !important;
-            -moz-print-color-adjust: exact !important;
-            -o-print-color-adjust: exact !important;
-        }
-
-        .print-table-bordered th,
-        .print-table-bordered td,
-        .print-table-bordered {
-            border: 1px solid #000;
-            border-right: 1px solid #000 !important;
-        }
-
-        #table-statements {
-            page-break-after: always;
-        }
-
-        #table-statements td:nth-child(1) {
-            padding: 2px !important;
-        }
-
-        #table-statements tr {
-            page-break-inside: avoid;
-        }
-
-        #table-statements tr:nth-child(even) {
-            background-color: #f2f2f2 !important;
-        }
-
-        #table-statements tr:last-child {
-            page-break-after: avoid;
-        }
-
-        #table-statements tr:first-child {
-            page-break-before: always;
-        }
-
-        #table-statements td:first-child {
-            white-space: nowrap !important;
-        }
-
-        .text-nowrap {
-            white-space: nowrap !important;
-        }
-
-    } */
     @media print {
         .p-bold {
             font-weight: 600 !important;
@@ -203,12 +155,13 @@
                                     </td>
                                     <td class="m-0">
                                         @if (!$entry->is_reconciled)
-                                        <div class="form-check-inline m-0">
-                                            <input class="form-check-input check-account-entry" autocomplete="off"
-                                                {{ $entry->is_reconciled ? 'disabled' : '' }}
-                                                value="{{ $entry->is_reconciled ? '' : $entry->id }}" type="checkbox" />
-                                        </div>
-                                    @endif
+                                            <div class="form-check-inline m-0">
+                                                <input class="form-check-input check-account-entry" autocomplete="off"
+                                                    {{ $entry->is_reconciled ? 'disabled' : '' }}
+                                                    value="{{ $entry->is_reconciled ? '' : $entry->id }}"
+                                                    type="checkbox" />
+                                            </div>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty
@@ -302,7 +255,9 @@
                                             --
                                         @endif
                                     </td>
-                                    <td></td>
+                                    <td>
+
+                                    </td>
                                 </tr>
                             @empty
                             @endforelse
@@ -337,7 +292,12 @@
                         </div>
                         <div class="d-flex align-items-center">
                             <span
-                                class="btn btn-{{ $account->accountStatus->status === 'open' ? 'success' : 'danger' }}">{{ $account->accountStatus->status }}</span>
+                                class="btn btn-{{ $account->accountStatus->status === 'open' ? 'success' : 'danger' }}">{{ $account->accountStatus->status }}
+                            </span>
+                            <a href="{{ route('account.edit', [$account_location->id, $account->id]) }}"
+                                class="btn mx-2 btn-warning" type="button" title="Edit Account Details">
+                                <i class="fas text- fa-pen-to-square"></i>
+                            </a>
                         </div>
                     </div>
                     <div class="row mt-5">
@@ -411,12 +371,15 @@
         $('#table-account-entries tbody tr').each(function() {
             var debit = Number.parseFloat(
                 $(this).find('td').eq(4).text().replace('--', '0')
-                .replace(',', '').replace('-', '').trim());
+                .replace(/,/g, '').replace('-', '').trim());
             var credit = Number.parseFloat(
                 $(this).find('td').eq(5).text().replace('--', '0')
-                .replace(',', '').trim());
+                .replace(/,/g, '').trim());
 
-            $balance += (credit - debit);
+            $balance = $balance + (credit - debit);
+            console.log($(this).find('td').eq(5).text().replace(/,/g, ''));
+            
+            // console.log('credit: ', credit, 'debit: ', debit);
 
             $(this).find('td').eq(6).text(formatter.format($balance.toFixed(2))
                 .toString().replace('GHS', ''));
@@ -585,12 +548,12 @@
             console.log(checkAll);
 
             $('table#table-account-entries input[type="checkbox"].check-account-entry').each(
-        function() {
-                $(this).prop('checked', checkAll);
-                if (checkAll) {
-                    entries.push($(this).val());
-                }
-            });
+                function() {
+                    $(this).prop('checked', checkAll);
+                    if (checkAll) {
+                        entries.push($(this).val());
+                    }
+                });
             if (!checkAll) {
                 entries = [];
             }
@@ -635,11 +598,15 @@
         $('#table-statements tbody tr').each(function() {
             var debit = Number.parseFloat(
                 $(this).find('td').eq(4).text().replace('--', '0')
-                .replace(',', '').replace('-', '').trim());
+                .replace(/,/g, '').replace('-', '').trim());
             var credit = Number.parseFloat(
                 $(this).find('td').eq(5).text().replace('--', '0')
-                .replace(',', '').trim());
-            $statementBalance += (credit - debit);
+                .replace(/,/g, '').trim());
+            // $statementBalance += (credit - debit);
+            // console.log('debit: ', debit, 'credit: ', credit);
+
+            $statementBalance = $statementBalance + credit - debit;
+
 
             $(this).find('td').eq(6).text(formatter.format($statementBalance.toFixed(2))
                 .toString().replace('GHS', ''));

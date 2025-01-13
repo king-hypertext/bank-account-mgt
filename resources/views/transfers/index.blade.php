@@ -78,7 +78,7 @@
                                     {{-- </span> --}}
                                 </td>
                                 {{-- <td>{{ $transfer->reference_number }}</td> --}}
-                                <td>{{ Carbon::parse($transfer->created_at)->format('Y-m-d') }}</td>
+                                <td>{{ Carbon::parse($transfer->created_at)->format('d/m/Y') }}</td>
                                 <td>
                                     {{-- <a title="Edit" class="btn p-1 text-warning"
                                         href="{{ route('transfers.edit', [$account_location->id, $transfer->id]) }}">

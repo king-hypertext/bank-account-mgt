@@ -96,9 +96,9 @@
                 <fieldset class="row mb-3">
                     <label for="date" class="col-form-label text-uppercase col-sm-2 pt-0">payment date</label>
                     <div class="col-sm-10">
-                        <input required type="date" value="{{ Carbon::parse($entry->date)->format('Y-m-d') }}"
-                            class="form-control @error('date') is-invalid @enderror" name="date" id="date"
-                            placeholder="" />
+                        <input required type="text" value="{{ Carbon::parse($entry->date)->format('d/m/Y') }}"
+                            placeholder="DD/MM/YYYY" class="form-control @error('date') is-invalid @enderror" name="date"
+                            id="date" placeholder="" />
                         @error('date')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -107,8 +107,8 @@
                 <fieldset class="row mb-3">
                     <label for="value-date" class="col-form-label text-uppercase col-sm-2 pt-0">value date</label>
                     <div class="col-sm-10">
-                        <input required type="date" onchange="validateDates()"
-                            value="{{ Carbon::parse($entry->value_date)->format('Y-m-d') ?? now()->format('Y-m-d') }}"
+                        <input required type="text" onchange="validateDates()" placeholder="DD/MM/YYYY"
+                            value="{{ Carbon::parse($entry->value_date)->format('d/m/Y') ?? now()->format('d/m/Y') }}"
                             class="form-control @error('value-date') is-invalid @enderror" name="value-date" id="value-date"
                             placeholder="" />
                         @error('value-date')

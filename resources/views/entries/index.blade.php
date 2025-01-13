@@ -280,10 +280,10 @@
             $('#table-entries tbody tr').each(function() {
                 var debit = Number.parseFloat(
                     $(this).find('td').eq(3).text().replace('--', '0')
-                    .replace(',', '').replace('-', '').trim());
+                    .replace(/,/g, '').replace('-', '').trim());
                 var credit = Number.parseFloat(
                     $(this).find('td').eq(4).text().replace('--', '0')
-                    .replace(',', '').replace('-', '').trim());
+                    .replace(/,/g, '').replace('-', '').trim());
 
                 $balance += (credit - debit);
                 $(this).find('td').eq(5).text(formatter.format($balance.toFixed(2)).toString().replace(

@@ -89,7 +89,7 @@
                                 <td class="text-{{ $account->balance >= 0 ? 'success' : 'danger' }} fw-bold">
                                     {{ number_format($account->balance, 2, '.', ',') }}
                                 </td>
-                                <td>{{ Carbon::parse($account->created_at)->format('Y-m-d H:i') }}</td>
+                                <td>{{ Carbon::parse($account->created_at)->format('d/m/Y,H:i') }}</td>
                                 <td>
                                     {{-- <a title="View" class="btn btn- p-1" title="View"
                                         href="{{ route('account.show', [$account_location->id, $account->id]) }}">

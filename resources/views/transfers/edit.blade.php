@@ -95,7 +95,7 @@
                     <label for="date" class="col-form-label text-uppercase col-sm-2 pt-0">value date</label>
                     <div class="col-sm-10">
                         <input required type="date"
-                            value="{{ Carbon::parse($transfer->created_at)->format('Y-m-d') ?? now()->format('Y-m-d') }}"
+                            value="{{ Carbon::parse($transfer->created_at)->format('d/m/Y') ?? now()->format('d/m/Y') }}"
                             class="form-control @error('date') is-invalid @enderror" name="date" id="date"
                             placeholder="" />
                         @error('date')

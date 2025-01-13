@@ -67,6 +67,8 @@ class AccountController extends Controller
     public function store(int $location, StoreAccountRequest $request)
     {
         $account_location = AccountLocation::findOrFail($location);
+        $value_date = now()->parse($request->input('value_date'))->toDateString();
+        $date = now()->parse($request->input('created_at'))->toDateString();
         $account = $account_location->accounts()->create([
             'account_number' => $request->account_number,
             'bank_name' => $request->bank_name,
@@ -75,18 +77,18 @@ class AccountController extends Controller
             'account_status_id' => $request->account_status,
             'account_description' => $request->account_description,
             'account_address' => $account_location->name . ' - ' . $this->getAcronym($request->bank_name),
-            'initial_amount' => $request->initial_amount ?? 0,
+            'initial_amount' => $request->initial_amount ?? 0, 
             'balance' => 0,
-            'created_at' => $request->created_at ?? now(),
+            'created_at' => $date ?? now(),
         ]);
         //create an entry with description initial deposit
         $account->entries()->create([
             'entry_type_id' => EntryType::CREDIT_ID,
             'amount' => $request->initial_amount,
             'description' => 'intial deposit',
-            'date' => $request->created_at,
+            'date' => $date,
             'reference_number' => now()->format('Ymdhisv'),
-            'value_date' => $request->created_at ?? now(),
+            'value_date' => $value_date ?? now(),
         ]);
         // $request->initial_amount > 0 && $account->updateBalance($request->initial_amount ?? 0, 'credit');
         $routeName = $request->has('exist') ? 'account.home' : 'account.create';
@@ -136,15 +138,16 @@ class AccountController extends Controller
         if ($account->accountLocation->id !== $location) {
             abort(403, 'Account does not belongs to this location.');
         }
-
+        $value_date = now()->parse($request->input('created_at'))->toDateString();
+        // $date = now()->parse($request->input('date'))->toDateString();
         if ($account->entries->isEmpty() && $request->initial_amount > 0) {
             $account->entries()->create([
                 'entry_type_id' => EntryType::CREDIT_ID,
                 'amount' => $request->initial_amount,
                 'description' => 'intial deposit',
-                'date' => $request->created_at ?? now(),
+                'date' => $value_date ?? now(),
                 'reference_number' => now()->format('Ymdhisv'),
-                'value_date' => $request->created_at ?? now(),
+                'value_date' => $value_date ?? now(),
             ]);
         }
         $account->update([
@@ -156,7 +159,7 @@ class AccountController extends Controller
             'account_description' => $request->account_description,
             'account_address' => $account->accountLocation->name . ' - ' . $this->getAcronym($request->bank_name),
             'initial_amount' => $request->initial_amount,
-            'created_at' => $request->created_at ?? now(),
+            'created_at' => $value_date ?? now(),
         ]);
 
         // if ($request->initial_amount <> $previousInitialAmount) {
