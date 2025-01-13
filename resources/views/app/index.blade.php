@@ -26,7 +26,7 @@
 </style>
 
 <body>
-    <div class="container flex">
+    <div class="container overflow-y-auto my-5">
         <div class="row">
             <h6 class="text-center fw-bold text-uppercase">Accounts locations & balances</h6>
             @forelse ($account_locations as $location)

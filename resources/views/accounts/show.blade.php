@@ -262,7 +262,7 @@
                             @empty
                             @endforelse
                         </tbody>
-                        <tfoot>
+                        {{-- <tfoot>
                             <tr>
                                 <th colspan="4" class="text-start">Total:</th>
                                 <th id="total-debit"></th>
@@ -270,7 +270,7 @@
                                 <th id="total-balance"></th>
                                 <th colspan="2"></th>
                             </tr>
-                        </tfoot>
+                        </tfoot> --}}
                     </table>
                 </div>
             </div>
@@ -378,7 +378,7 @@
 
             $balance = $balance + (credit - debit);
             console.log($(this).find('td').eq(5).text().replace(/,/g, ''));
-            
+
             // console.log('credit: ', credit, 'debit: ', debit);
 
             $(this).find('td').eq(6).text(formatter.format($balance.toFixed(2))
@@ -629,39 +629,39 @@
             pageLength: 50,
             // buttons: ['copy', 'excel', 'pdf', 'csv', 'print'],
             footerCallback: function(row, data, start, end, display) {
-                var api = this.api(),
-                    data;
-                var intVal = function(i) {
-                    if (typeof i === 'string') {
-                        return i.replace(/[\$,-]/g, '') * 1.00;
-                    } else if (typeof i === 'number') {
-                        return i.toString().replace(/-/g, '') * 1.00;
-                    }
-                };
-                var total = api.column(5).data().reduce(function(a, b) {
-                    return intVal(a) + intVal(b);
-                }, 0.00);
-                var formatter = new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'GHS',
-                });
-                var debitTotal = api.column(4, {
-                    page: 'current'
-                }).data().reduce(function(a, b) {
-                    return intVal(a) + intVal(b);
-                }, 0.00);
-                var creditTotal = api.column(5, {
-                    page: 'current'
-                }).data().reduce(function(a, b) {
-                    return intVal(a) + intVal(b);
-                }, 0.00);
-                var balanceTotal = creditTotal - debitTotal;
-                $(api.column(4).footer()).addClass('text-danger fw-semibold d-inline-block').html(
-                    formatter.format(debitTotal));
-                $(api.column(5).footer()).addClass('text-success fw-semibold').html(formatter
-                    .format(creditTotal));
-                $(api.column(6).footer()).addClass('fw-semibold').html(formatter.format(
-                    balanceTotal));
+                // var api = this.api(),
+                //     data;
+                // var intVal = function(i) {
+                //     if (typeof i === 'string') {
+                //         return i.replace(/[\$,-]/g, '') * 1.00;
+                //     } else if (typeof i === 'number') {
+                //         return i.toString().replace(/-/g, '') * 1.00;
+                //     }
+                // };
+                // var total = api.column(5).data().reduce(function(a, b) {
+                //     return intVal(a) + intVal(b);
+                // }, 0.00);
+                // var formatter = new Intl.NumberFormat('en-US', {
+                //     style: 'currency',
+                //     currency: 'GHS',
+                // });
+                // var debitTotal = api.column(4, {
+                //     page: 'current'
+                // }).data().reduce(function(a, b) {
+                //     return intVal(a) + intVal(b);
+                // }, 0.00);
+                // var creditTotal = api.column(5, {
+                //     page: 'current'
+                // }).data().reduce(function(a, b) {
+                //     return intVal(a) + intVal(b);
+                // }, 0.00);
+                // var balanceTotal = creditTotal - debitTotal;
+                // $(api.column(4).footer()).addClass('text-danger fw-semibold d-inline-block').html(
+                //     formatter.format(debitTotal));
+                // $(api.column(5).footer()).addClass('text-success fw-semibold').html(formatter
+                //     .format(creditTotal));
+                // $(api.column(6).footer()).addClass('fw-semibold').html(formatter.format(
+                //     balanceTotal));
             },
             buttons: [{
                     extend: 'excel',
@@ -710,16 +710,58 @@
                         "style": 'background-color: #44abff;color: #fff',
                         "data-mdb-ripple-init": '',
                     },
-                    // customize: function(win) {
-                    //     // Set paper margin
-                    //     // $(win.document).find('table').addClass('print-table-bordered');
-                    //     // $(win.document).find('table').addClass('print-table-bordered');
-                    //     $(win.document.body).css('margin-left', '0').css('margin-right', '0')
-                    //         .css('padding', '0');
+                    customize: function(win, dt, api) {
+                        // var api = this.api();
+                        var $header = $(win.document.body).find('table>thead');
+                        var $footer = $(win.document.body).find('table>tfoot');
 
-                    //     // Add table borders
-                    // },
-                    messageBottom: "Statement of entries"
+                        var intVal = function(i) {
+                            if (typeof i === 'string') {
+                                return i.replace(/[\$,-]/g, '') * 1.00;
+                            } else if (typeof i === 'number') {
+                                return i.toString().replace(/-/g, '') * 1.00;
+                            }
+                        };
+                        var formatter = new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'GHS',
+                        });
+                        var debitTotal = api.column(4).data().reduce(function(a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0.00);
+                        var creditTotal = api.column(5).data().reduce(function(a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0.00);
+                        var currentPage = api.page.info().page + 1;
+                        var totalPages = api.page.info().pages;
+
+                        var customData = "custom data at the top";
+                        $(win.document.body).find('table>thead').prepend(
+                            '<tr>' +
+                            '<td colspan="2"> Total Debit: ' + formatter.format(
+                                debitTotal) + '</td> ' +
+                            '<td colspan="2"> Total Credit: ' + formatter.format(
+                                creditTotal) +
+                            '</td> ' +
+                            '<td colspan="2"> Balance: ' + formatter.format(creditTotal -
+                                debitTotal) +
+                            '</td> ' +
+                            '<td></td> ' +
+                            ' </tr>');
+                        $(win.document.body).find('table').append(
+                            '<tfoot>' +
+                            '<tr class="text-lowercase text-center">' +
+                            '<td class="text-center" colspan="100%" align="center">Page ' +
+                            currentPage +
+                            ' of ' + totalPages +
+                            '</td>' +
+                            '</tr>' +
+                            '</tfoot>'
+                        );
+
+                    },
+                    messageBottom: "Statement of account",
+
                 }
             ],
             language: {
