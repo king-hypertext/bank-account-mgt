@@ -91,23 +91,27 @@
                 <fieldset class="row mb-3">
                     <label for="date" class="col-form-label text-uppercase col-md-2 pt-0">payment date</label>
                     <div class="col-md-10">
-                        <input required type="text" placeholder="DD/MM/YYYY" {{-- value="{{ now()->format('Y-m-d') }}" --}}
-                            class="form-control @error('date') is-invalid @enderror" name="date" id="date"
-                            placeholder="" />
-                        @error('date')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <div class="form-inline d-flex">
+                            <input required type="text" data-day-input name="date_day" class="form-control me-2"
+                                placeholder="DD" style="width: 60px;">
+                            <input required type="text" name="date_month" data-month-input class="form-control me-2"
+                                placeholder="MM" style="width: 60px;">
+                            <input required type="text" name="date_year" data-year-input class="form-control"
+                                placeholder="YYYY" style="width: 70px;">
+                        </div>
                     </div>
                 </fieldset>
                 <fieldset class="row mb-3">
                     <label for="value_date" class="col-form-label text-uppercase col-md-2 pt-0">value date</label>
                     <div class="col-md-10">
-                        <input required type="text" placeholder="DD/MM/YYYY" {{-- value="{{ now()->format('Y-m-d') }}" --}} onchange="validateDates()"
-                            class="form-control @error('value_date') is-invalid @enderror" name="value_date" id="value_date"
-                            placeholder="" />
-                        @error('value_date')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <div class="form-inline d-flex">
+                            <input required type="text" data-day-input name="value_date_day" class="form-control me-2"
+                                placeholder="DD" style="width: 60px;">
+                            <input required type="text" name="value_date_month" data-month-input
+                                class="form-control me-2" placeholder="MM" style="width: 60px;">
+                            <input required type="text" name="value_date_year" data-year-input class="form-control"
+                                placeholder="YYYY" style="width: 70px;">
+                        </div>
                     </div>
                 </fieldset>
                 @csrf
@@ -131,6 +135,6 @@
             $('.loader-overlay').show().find('.loader-text').text('Processing...')
             return 1;
         });
-        $('textarea[name="description"]').val('{{ @old('description') ?? 'payment' }}')
+        $('textarea[name="description"]').val('{{ @old('description') ?? 'payment' }}');
     </script>
 @endsection

@@ -77,7 +77,7 @@ class AccountController extends Controller
             'account_status_id' => $request->account_status,
             'account_description' => $request->account_description,
             'account_address' => $account_location->name . ' - ' . $this->getAcronym($request->bank_name),
-            'initial_amount' => $request->initial_amount ?? 0, 
+            'initial_amount' => $request->initial_amount ?? 0,
             'balance' => 0,
             'created_at' => $date ?? now(),
         ]);
@@ -193,7 +193,15 @@ class AccountController extends Controller
     {
         $accountLocation = AccountLocation::findOrFail($location);
         $clonedAccountLocation = $accountLocation->replicate();
-        $clonedAccountLocation->name .= ' - Cloned';
+        $counter = 1;
+        $newName = $clonedAccountLocation->name;
+
+        while (AccountLocation::where('name', $newName)->exists()) {
+            $newName = $clonedAccountLocation->name . ' - Cloned ' . $counter;
+            $counter++;
+        }
+
+        $clonedAccountLocation->name = $newName;
         $clonedAccountLocation->save();
 
         foreach ($accountLocation->accounts as $account) {

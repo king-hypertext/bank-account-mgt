@@ -218,6 +218,8 @@
                     </div>
 
                     <table class="table print-table-bordered align-middle text-capitalize" id="table-statements">
+                        <div class="customData">
+                        </div>
                         <thead class="text-capitalize p-bold">
                             <tr>
                                 <th scope="col" title="PAYMENT DATE">date</th>
@@ -342,8 +344,8 @@
             $(`#${tab}`).addClass('show active');
             $(`.tab-pane#${tabContent}`).addClass('show active');
         } else {
-            $('#account-tab').addClass('show active');
-            $('.tab-pane#account').addClass('show active');
+            $('#entries-tab').addClass('show active');
+            $('.tab-pane#entries').addClass('show active');
         }
 
         // Update query parameter on tab change
@@ -735,20 +737,26 @@
                         var currentPage = api.page.info().page + 1;
                         var totalPages = api.page.info().pages;
 
-                        var customData = "custom data at the top";
-                        $(win.document.body).find('table>thead').prepend(
-                            '<tr>' +
-                            '<td colspan="2"> Total Debit: ' + formatter.format(
-                                debitTotal) + '</td> ' +
-                            '<td colspan="2"> Total Credit: ' + formatter.format(
-                                creditTotal) +
-                            '</td> ' +
-                            '<td colspan="2"> Balance: ' + formatter.format(creditTotal -
-                                debitTotal) +
-                            '</td> ' +
-                            '<td></td> ' +
-                            ' </tr>');
-                        $(win.document.body).find('table').append(
+                        $(
+                            '<div class="flex text-end">' +
+                            '<div class="col">Total Debit:' + formatter.format(debitTotal) +
+                            '</div>' +
+                            '<div class="col">Total Credit:' + formatter.format(
+                            creditTotal) + '</div>' +
+                            '<div class="col">Balance:' + formatter.format(creditTotal -
+                                debitTotal) + '</div>' +
+                            '</div>'
+                        ).appendTo(win.document.body);
+
+                        //     '<div class="row justify-content-end align-items-center">' +
+                        //     '<div class="col-12"> Total Debit: ' + formatter.format(debitTotal) + '</div> ' +
+                        //     '<td colspan="2"> Total Credit: ' + formatter.format(creditTotal) +
+                        //     '</td> ' +
+                        //     '<td colspan="2"> Balance: ' + formatter.format(creditTotal -debitTotal) +
+                        //     '</td> ' +
+                        //     '<td></td> ' +
+                        //     ' </div>');
+                        $(win.document.body).append(
                             '<tfoot>' +
                             '<tr class="text-lowercase text-center">' +
                             '<td class="text-center" colspan="100%" align="center">Page ' +

@@ -94,26 +94,41 @@
                     </div>
                 </div>
                 <fieldset class="row mb-3">
-                    <label for="date" class="col-form-label text-uppercase col-sm-2 pt-0">payment date</label>
-                    <div class="col-sm-10">
-                        <input required type="text" value="{{ Carbon::parse($entry->date)->format('d/m/Y') }}"
-                            placeholder="DD/MM/YYYY" class="form-control @error('date') is-invalid @enderror" name="date"
-                            id="date" placeholder="" />
-                        @error('date')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <label for="date" class="col-form-label text-uppercase col-md-2 pt-0">payment date</label>
+                    <div class="col-md-10">
+                        <div class="form-inline d-flex">
+                            <label for="date_day" class="col-form-label">Day</label>
+                            <input required type="text" value="{{ now()->parse($entry->date)->format('d') }}"
+                                data-day-input name="date_day" class="form-control me-2" placeholder="DD"
+                                style="width: 60px;">
+                            <label for="date_day" class="col-form-label">Month</label>
+                            <input required type="text" value="{{ now()->parse($entry->date)->format('m') }}"
+                                name="date_month" data-month-input class="form-control me-2" placeholder="MM"
+                                style="width: 60px;">
+                            <label for="date_day" class="col-form-label">Year</label>
+                            <input required type="text" value="{{ now()->parse($entry->date)->format('Y') }}"
+                                name="date_year" data-year-input class="form-control" placeholder="YYYY"
+                                style="width: 70px;">
+                        </div>
                     </div>
                 </fieldset>
                 <fieldset class="row mb-3">
-                    <label for="value-date" class="col-form-label text-uppercase col-sm-2 pt-0">value date</label>
-                    <div class="col-sm-10">
-                        <input required type="text" onchange="validateDates()" placeholder="DD/MM/YYYY"
-                            value="{{ Carbon::parse($entry->value_date)->format('d/m/Y') ?? now()->format('d/m/Y') }}"
-                            class="form-control @error('value-date') is-invalid @enderror" name="value-date" id="value-date"
-                            placeholder="" />
-                        @error('value-date')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <label for="value_date" class="col-form-label text-uppercase col-md-2 pt-0">value date</label>
+                    <div class="col-md-10">
+                        <div class="form-inline d-flex">
+                            <label for="date_day" class="col-form-label">Day</label>
+                            <input required type="text" value="{{ now()->parse($entry->value_date)->format('d') }}"
+                                data-day-input name="value_date_day" class="form-control me-2" placeholder="DD"
+                                style="width: 60px;">
+                            <label for="date_day" class="col-form-label">Month</label>
+                            <input required type="text" value="{{ now()->parse($entry->value_date)->format('m') }}"
+                                name="value_date_month" data-month-input class="form-control me-2" placeholder="MM"
+                                style="width: 60px;">
+                            <label for="date_day" class="col-form-label">Year</label>
+                            <input required type="text" value="{{ now()->parse($entry->value_date)->format('Y') }}"
+                                name="value_date_year" data-year-input class="form-control" placeholder="YYYY"
+                                style="width: 70px;">
+                        </div>
                     </div>
                 </fieldset>
                 @method('PUT')

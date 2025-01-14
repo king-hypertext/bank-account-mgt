@@ -50,8 +50,16 @@ class EntryController extends Controller
     public function store(int $location, StoreEntryRequest $request)
     {
         $account = AccountLocation::findOrFail($location)->accounts()->findOrFail($request->account);
-        $value_date = now()->parse($request->input('value_date'))->toDateString();
-        $date = now()->parse($request->input('date'))->toDateString();
+        $value_date = now()->parse(
+            $request->input('value_date_day') . '-' .
+                $request->input('value_date_month') . '-' .
+                $request->input('value_date_year')
+        )->toDateString();
+        $date = now()->parse(
+            $request->input('date_day') . '-' .
+                $request->input('date_month') . '-' .
+                $request->input('date_year')
+        )->toDateString();
         $account->entries()->create([
             'entry_type_id' => $request->entry_type,
             'description' => $request->description,
@@ -93,8 +101,16 @@ class EntryController extends Controller
             abort(403, 'Account does not belongs to this location.');
         }
         // dd($request->all());
-        $value_date = now()->parse($request->input('value_date'))->toDateString();
-        $date = now()->parse($request->input('date'))->toDateString();
+        $value_date = now()->parse(
+            $request->input('value_date_day') . '-' .
+                $request->input('value_date_month') . '-' .
+                $request->input('value_date_year')
+        )->toDateString();
+        $date = now()->parse(
+            $request->input('date_day') . '-' .
+                $request->input('date_month') . '-' .
+                $request->input('date_year')
+        )->toDateString();
         if ($entry->is_reconciled) {
             $fields = [
                 'description' => $request->description,
