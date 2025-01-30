@@ -91,7 +91,7 @@
                 <fieldset class="row mb-3">
                     <label for="date" class="col-form-label text-uppercase col-md-2 pt-0">payment date</label>
                     <div class="col-md-10">
-                        <input required type="text" placeholder="DD/MM/YYYY" {{-- value="{{ now()->format('Y-m-d') }}" --}}
+                        <input required type="date" {{-- value="{{ now()->format('Y-m-d') }}" --}}
                             class="form-control @error('date') is-invalid @enderror" name="date" id="date"
                             placeholder="" />
                         @error('date')
@@ -102,7 +102,7 @@
                 <fieldset class="row mb-3">
                     <label for="value_date" class="col-form-label text-uppercase col-md-2 pt-0">value date</label>
                     <div class="col-md-10">
-                        <input required type="text" placeholder="DD/MM/YYYY" {{-- value="{{ now()->format('Y-m-d') }}" --}} onchange="validateDates()"
+                        <input required type="date" {{-- value="{{ now()->format('Y-m-d') }}" --}} onchange="validateDates()"
                             class="form-control @error('value_date') is-invalid @enderror" name="value_date" id="value_date"
                             placeholder="" />
                         @error('value_date')
