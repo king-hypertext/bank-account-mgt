@@ -84,16 +84,8 @@ class TransferController extends Controller
         $from_account_id = $from_account->id;
         $to_account_id = $to_account->id;
         $notes = $request->notes;
-        $value_date = now()->parse(
-            $request->input('value_date_day') . '-' .
-                $request->input('value_date_month') . '-' .
-                $request->input('value_date_year')
-        )->toDateString();
-        $date = now()->parse(
-            $request->input('date_day') . '-' .
-                $request->input('date_month') . '-' .
-                $request->input('date_year')
-        )->toDateString();
+        $date = $request->date;
+        $value_date = $request->input('value-date');
         // Validate balance before transfer
         if ($from_account->balance < $amount) {
             return back()->with('error', 'Insufficient Account Balance');

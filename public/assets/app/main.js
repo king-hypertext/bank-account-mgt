@@ -6,43 +6,6 @@ const selectID = (value = HTMLElement | null) => document.getElementById(value);
 const template = (value = ``) => { return value }
 function onDOMContentLoaded() {
     console.log('DOMContentLoaded');
-    const dayInputs = document.querySelectorAll('[data-day-input]');
-    const monthInputs = document.querySelectorAll('[data-month-input]');
-    const yearInputs = document.querySelectorAll('[data-year-input]');
-
-    const dayMax = 31;
-    const monthMax = 12;
-
-    dayInputs.forEach(input => {
-        input.addEventListener('input', function () {
-            if (input.value.length > 2) {
-                input.value = input.value.slice(0, 2);
-            }
-            this.value = this.value.replace(/[^0-9]/g, '');
-            if (parseInt(this.value) > dayMax) {
-                this.value = dayMax.toString();
-            }
-        });
-    });
-    monthInputs.forEach(input => {
-        input.addEventListener('input', function () {
-            if (input.value.length > 2) {
-                input.value = input.value.slice(0, 2);
-            }
-            this.value = this.value.replace(/[^0-9]/g, '');
-            if (parseInt(this.value) > monthMax) {
-                this.value = monthMax.toString();
-            }
-        });
-    });
-    yearInputs.forEach(input => {
-        input.addEventListener('input', function () {
-            if (input.value.length > 4) {
-                input.value = input.value.slice(0, 4);
-            }
-            this.value = this.value.replace(/[^0-9]/g, '');
-        });
-    });
     setInterval(() => {
         selectID('date-time').innerHTML = new Date().toLocaleTimeString('en-US', {
             weekday: 'short',
@@ -76,5 +39,5 @@ function onDOMContentLoaded() {
     $('.select2').select2({
         width: '100%',
         placeholder: '',
-    });
+    });    
 }
