@@ -182,96 +182,37 @@
             <div class="tab-pane fade" id="reports" role="tabpanel" aria-labelledby="reports">
                 <div class="table-responsive">
                     <div class="d-flex align-items-center justify-content-between">
-                        <div class="table-action-btns">
-                            <button id="excelButtonStatement" class="btn text-white me-1" data-mdb-ripple-init
-                                style="background-color: #438162;" title="Export table to excel" type="button">
-                                <i class="fas fa-print me-1"></i>
-                                Excel
-                            </button>
-                            <button id="printButtonStatement" class="btn text-white ms-1" data-mdb-ripple-init
-                                style="background-color: #1179ce;" title="Click to print table" type="button">
-                                <i class="fas fa-print me-1"></i>
-                                print
-                            </button>
-                        </div>
-                        <form id="filter-statement" class="d-flex justify-content-end">
-                            <div class="input-group mb-3">
-                                <span class="input-group-text border-0" id="search-addon">start date</i></span>
-                                <input required type="date" name="start_date" class="form-control rounded"
-                                    id="startDate" onchange="updateMinEndDate()"
-                                    min="{{ Carbon::parse($entries->min('date'))->format('d-m-Y') }}"
-                                    max="{{ Carbon::parse($entries->max('date'))->format('d-m-Y') }}"
-                                    aria-label="Search" aria-describedby="search-addon" />
-                                <span class="input-group-text border-0" id="search-addon">end date</i></span>
-                                <input required type="date" name="end_date" class="form-control rounded"
-                                    id="endDate" max="{{ Carbon::parse($entries->max('date'))->format('d-m-Y') }}"
-                                    aria-label="Search" aria-describedby="search-addon" />
-                                <button type="submit" class="btn btn-primary mx-2 rounded-1">filter</button>
-                            </div>
+
+                        <form method="POST"
+                            action="{{ route('account.generateStatement', [$account_location->id, $account->id]) }}"
+                            class="d-flex justify-content-start">
+                            @csrf
                             <script>
                                 function updateMinEndDate() {
                                     const startDate = document.getElementById('startDate').value;
                                     document.getElementById('endDate').min = startDate;
                                 }
                             </script>
+                            <div class="mb-3 me-3">
+                                <label for="startDate" class="text-capitalize">start date</label>
+                                <input type="date" class="form-control" required
+                                    value="{{ now()->parse($entries->min('date'))->format('Y-m-d') }}"
+                                    min="{{ now()->parse($entries->min('date'))->format('Y-m-d') }}"
+                                    name="start_date" id="startDate" onchange="updateMinEndDate()" placeholder="" />
+                            </div>
+                            <div class="mb-3 me-3">
+                                <label for="endDate" class="text-capitalize">end date</label>
+                                <input type="date" required class="form-control"
+                                    value="{{ now()->parse($entries->max('date'))->format('Y-m-d') }}"
+                                    max="{{ now()->parse($entries->max('date'))->format('Y-m-d') }}" name="end_date"
+                                    id="endDate" aria-describedby="helpId" placeholder="" />
+                            </div>
+                            <div class="mb-3">
+                                <button type="submit" class="btn btn-primary rounded-1 mt-4">generate
+                                    statement</button>
+                            </div>
                         </form>
                     </div>
-
-                    <table class="table print-table-bordered align-middle text-capitalize" id="table-statements">
-                        <thead class="text-capitalize p-bold">
-                            <tr>
-                                <th scope="col" title="PAYMENT DATE">date</th>
-                                <th scope="col">description</th>
-                                <th scope="col" title="REFERENCE NUMBER">ref. number</th>
-                                <th scope="col" title="VALUE DATE">value date</th>
-                                <th scope="col">debit</th>
-                                <th scope="col">credit</th>
-                                <th scope="col" title="ACCOUNT BALANCE">balance</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($entries as $entry)
-                                <tr
-                                    class="border-bottom table-{{ $entry->is_reconciled ? 'secondary' : '' }} border-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
-                                    <td class="text-nowrap">{{ Carbon::parse($entry->created_at)->format('d-M-Y') }}
-                                    </td>
-                                    <td>{{ $entry->description }}</td>
-                                    <td>{{ $entry->reference_number }}</td>
-                                    <td class="text-nowrap">{{ Carbon::parse($entry->value_date)->format('d-M-Y') }}
-                                    </td>
-                                    <td align="right"
-                                        class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
-                                        @if ($entry->entryType->type === 'debit')
-                                            {{ '-' . number_format($entry->amount, 2, '.', ',') }}
-                                        @else
-                                            --
-                                        @endif
-                                    </td>
-                                    <td align="right"
-                                        class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
-                                        @if ($entry->entryType->type === 'credit')
-                                            {{ number_format($entry->amount, 2, '.', ',') }}
-                                        @else
-                                            --
-                                        @endif
-                                    </td>
-                                    <td>
-
-                                    </td>
-                                </tr>
-                            @empty
-                            @endforelse
-                        </tbody>
-                        {{-- <tfoot>
-                            <tr>
-                                <th colspan="4" class="text-start">Total:</th>
-                                <th id="total-debit"></th>
-                                <th id="total-credit"></th>
-                                <th id="total-balance"></th>
-                                <th colspan="2"></th>
-                            </tr>
-                        </tfoot> --}}
-                    </table>
                 </div>
             </div>
             <div class="tab-pane fade" id="account" role="tabpanel" aria-labelledby="account">
@@ -351,13 +292,6 @@
             const tabIndex = $(e.target).attr('id');
             history.pushState({}, '', `?tab=${tabIndex}`);
             // location.reload();
-        });
-        $('#filter-statement').submit(function(e) {
-            e.preventDefault();
-            const formData = $(this).serialize();
-            const currentUrl = window.location.href;
-            const updatedUrl = `${currentUrl}&${formData}`;
-            window.location.href = updatedUrl;
         });
         if (urlParams.get('start_date') && urlParams.get('end_date')) {
             $('[name="start_date"]').val(urlParams.get('start_date'));

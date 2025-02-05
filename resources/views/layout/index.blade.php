@@ -439,12 +439,12 @@
                 }
             });
 
-            $('input[type="date"]').datepicker({
-                dateFormat: 'yy-mm-dd', // Adjust the date format as needed 
-                changeMonth: true, // Allows changing the month 
-                changeYear: true, // Allows changing the year 
-                showButtonPanel: true // Adds buttons to clear or close the datepicker 
-            });
+            // $('input[type="date"]').datepicker({
+            //     dateFormat: 'yy-mm-dd', // Adjust the date format as needed
+            //     changeMonth: true, // Allows changing the month
+            //     changeYear: true, // Allows changing the year
+            //     showButtonPanel: true // Adds buttons to clear or close the datepicker
+            // });
         });
         const showSuccessAlert = Swal.mixin({
             position: 'top-right',

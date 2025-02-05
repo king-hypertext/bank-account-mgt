@@ -28,9 +28,11 @@ class Entry extends Model
 
     protected $casts = [
         'value_date' => 'date',
+        'date' =>'date',
         'is_reconciled' => 'boolean', // Assuming the column is of boolean type in the database table
         'is_transfer' => 'boolean' // Assuming the column is of boolean type in the database table
     ];
+    // protected $dates = ['value_date', 'date'];
     public function account()
     {
         return $this->belongsTo(Account::class);  // Assuming Account Model has a foreign key 'account_id'

@@ -9,6 +9,7 @@ use App\Models\AccountLocation;
 use App\Models\AccountStatus;
 use App\Models\AccountType;
 use App\Models\EntryType;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller
@@ -77,7 +78,7 @@ class AccountController extends Controller
             'account_status_id' => $request->account_status,
             'account_description' => $request->account_description,
             'account_address' => $account_location->name . ' - ' . $this->getAcronym($request->bank_name),
-            'initial_amount' => $request->initial_amount ?? 0, 
+            'initial_amount' => $request->initial_amount ?? 0,
             'balance' => 0,
             'created_at' => $date ?? now(),
         ]);
@@ -216,5 +217,36 @@ class AccountController extends Controller
         $account->restore();
         $url = redirect()->route('account.home', $location)->with('success', 'Account restored successfully')->getTargetUrl();
         return response()->json(['success' => true, 'url' => $url]);
+    }
+    public function generateStatement(int $location, int $account_id, Request $request)
+    {
+        // dd($request->all());
+        // if (!$request->start_date && !$request->end_date) {
+        //     return redirect()->route('account.show', [$location, $account_id, 'tab' => 'reports-tab'])->with('error', 'Invalid dates specified');
+        // }
+        $startDate = now()->createFromFormat('Y-m-d', $request->start_date);
+        $endDate = now()->createFromFormat('Y-m-d', $request->end_date);
+        // $startDate = now();
+        // $endDate = now();
+        $account = Account::findOrFail($account_id);
+        $statements = $account->entries()->whereBetween('value_date', [$startDate, $endDate])->where('is_reconciled', true)->get();
+        if ($statements->isEmpty()) {
+            return redirect()->route('account.show', [$location, $account_id, 'tab' => 'reports-tab'])->with('error', 'No statements found for the specified date range');
+        }
+        $totalDebit = $statements->filter(function ($entry) {
+            return $entry->entryType->type === 'debit'; // Assuming entry_type_id 2 is for debits
+        })->sum('amount') ?? 0;
+
+        $totalCredit = $statements->filter(function ($entry) {
+            return $entry->entryType->type === 'credit'; // Assuming entry_type_id other than 2 is for credits
+        })->sum('amount') ?? 0;
+        // return view('pdf.statement', compact('statements', 'account', 'startDate', 'endDate', 'totalCredit', 'totalDebit'));
+
+        $pdf = Pdf::loadView('pdf.statement', compact('statements', 'account', 'startDate', 'endDate', 'totalCredit', 'totalDebit'));
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true, // Enable external images/CSS
+        ]);
+        return $pdf->stream($account->name . '.' . $account->accountLocation->name . '.' . 'statement.pdf');
     }
 }

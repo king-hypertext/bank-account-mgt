@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EntryController;
+use App\Http\Controllers\generatePDF;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\TrashController;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ Route::get('login', [AuthController::class, 'login'])->name('login')->middleware
 Route::post('login', [AuthController::class, 'authenticate'])->name('authenticate');
 Route::get('init', [AppController::class, 'init'])->name('init');
 Route::post('init', [AppController::class, 'storeAdmin'])->name('init.post');
-
+Route::get('/generate-pdf', [generatePDF::class, 'generate']);
 Route::middleware(['auth'])->group(function () {
     Route::permanentRedirect('/', 'l');
     Route::get('l', [AppController::class, 'index'])->name('l.list');
@@ -24,6 +25,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('l/store', [AppController::class, 'storeLocation'])->name('l.store');
     Route::prefix('l/{location}')->group(function () {
         Route::get('/', [AccountController::class, 'index'])->name('account.home');
+        Route::post('account/{id}/generate-statement', [AccountController::class, 'generateStatement'])->name('account.generateStatement');
         Route::resource('account', AccountController::class);
         Route::post('account/restore/{account}', [AccountController::class, 'restore'])->name('account.restore');
         Route::resource('entries', EntryController::class);
