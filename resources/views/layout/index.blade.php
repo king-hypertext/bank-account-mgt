@@ -21,56 +21,21 @@
     <script src="{{ asset('assets/jquery/external/jquery.js') }}"></script>
     <script src="{{ asset('assets/jquery/jquery.inputmask.min.js') }}"></script>
     <title>ACCOUNTS MANAGER | {{ strtoupper($page_title ?? 'HOME') }}</title>
+    <script type="text/javascript">
+        window.addEventListener('load', () => {
+            const loader = document.querySelector('.loader');
+            loader.classList.add('loader--hidden');
+
+            // Optional: Remove loader from DOM after animation
+            loader.addEventListener('transitionend', () => {
+                if (loader.parentElement) {
+                    loader.parentElement.removeChild(loader);
+                }
+            });
+        });
+    </script>
 </head>
 <style>
-    .loader-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.7);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1096;
-        overflow: hidden !important;
-    }
-
-    .loader-overlay .loader-text {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 24pt;
-        text-align: center;
-        margin-top: 20px;
-        animation: blink 2s infinite;
-        animation-timing-function: ease-in-out;
-        color: #fff;
-        position: absolute;
-        bottom: 35%;
-    }
-
-    @keyframes blink {
-        0% {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: 0;
-        }
-
-        100% {
-            opacity: 1;
-        }
-    }
-
-    @media print {
-        table tr th {
-            text-transform: uppercase !important;
-        }
-    }
-
     table tr td:first-child,
     table tr th:first-child {
         text-align: left !important;
@@ -196,22 +161,9 @@
         /* -webkit-box-shadow: 0 0 20px 20px #fff inset !important; */
     }
 </style>
-@php
-    // $account_location =
-@endphp
 
 <body>
-    <div class="loader-overlay">
-        <div class="loadingio-spinner-dual-ring-nq4q5u6dq7r">
-            <div class="ldio-x2uulkbinbj">
-                <div></div>
-                <div>
-                    <div></div>
-                </div>
-            </div>
-        </div>
-        <div class="loader-text text-white fs-2">Loading...</div>
-    </div>
+    <div class="loader"></div>
     @include('layout.nav')
     <div class="container-fluid">
 
@@ -248,7 +200,7 @@
     <script src="{{ asset('assets/app/main.js') }}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            $('.loader-overlay').hide();
+            // $('.loader-overlay').hide();
             (function() {
                 const NavTogglerButton = document.querySelector('.nav-toggler-button');
                 const Sidebar = document.querySelector('.sidebar');

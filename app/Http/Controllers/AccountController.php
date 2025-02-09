@@ -224,8 +224,8 @@ class AccountController extends Controller
         // if (!$request->start_date && !$request->end_date) {
         //     return redirect()->route('account.show', [$location, $account_id, 'tab' => 'reports-tab'])->with('error', 'Invalid dates specified');
         // }
-        $startDate = now()->createFromFormat('Y-m-d', $request->start_date);
-        $endDate = now()->createFromFormat('Y-m-d', $request->end_date);
+        $startDate = now()->parse($request->start_date)->format('Y-m-d');
+        $endDate = now()->parse($request->end_date)->format('Y-m-d');
         // $startDate = now();
         // $endDate = now();
         $account = Account::findOrFail($account_id);
@@ -247,6 +247,6 @@ class AccountController extends Controller
             'isHtml5ParserEnabled' => true,
             'isRemoteEnabled' => true, // Enable external images/CSS
         ]);
-        return $pdf->stream($account->name . '.' . $account->accountLocation->name . '.' . 'statement.pdf');
+        return $pdf->download($account->name . '.' . $account->accountLocation->name . '.' . now()->format('d.m.Y') . '.statement.pdf');
     }
 }
