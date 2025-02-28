@@ -41,11 +41,6 @@
                     <i class="fas fa-print me-1"></i>
                     Excel
                 </button>
-                {{-- <button id="pdfButton" class="btn text-white mx-1" data-mdb-ripple-init style="background-color: #ee4a60;"
-                    title="Save table as PDF" type="button">
-                    <i class="fas fa-file-pdf me-1"></i>
-                    PDF
-                </button> --}}
                 <button id="printButton" class="btn text-white ms-1" data-mdb-ripple-init style="background-color: #44abff;"
                     title="Click to print table" type="button">
                     <i class="fas fa-print me-1"></i>
@@ -76,25 +71,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {{-- {{ $entries }} --}}
                         @forelse ($entries as $entry)
                             <tr
                                 class="border-bottom table-{{ $entry->is_reconciled ? 'secondary' : '' }} border-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
-                                {{-- <td>
-                                    {{ $loop->iteration }}
-                                </td> --}}
                                 <td>{{ $entry->reference_number }}</td>
-                                <td>{{ $entry->description }}</td>
+                                <td class="fw-medium text-truncate text-lowercase" style="max-width: 50px;" title="{{ $entry->description }}" data-mdb-tooltip-init>{{ $entry->description }}</td>
                                 <td class="text-uppercase">
                                     <a href="{{ route('account.show', [$account_location->id, $entry->account->id]) }}"
                                         class="card-link">
                                         {{ $entry->account->name }}
                                     </a>
                                 </td>
-                                {{-- <td>{{ $entry->account->accountLocation->name }}</td> --}}
-                                {{-- <td>{{ $entry->account->accountType->type }}</td> --}}
                                 <td align="right"
-                                    class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
+                                    class="text-nowrap fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
                                     @if ($entry->entryType->type === 'debit')
                                         {{ '-' . number_format($entry->amount, 2, '.', ',') }}
                                     @else
@@ -102,7 +91,7 @@
                                     @endif
                                 </td>
                                 <td align="right"
-                                    class="fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
+                                    class="text-nowrap fw-bold text-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
                                     @if ($entry->entryType->type === 'credit')
                                         {{ number_format($entry->amount, 2, '.', ',') }}
                                     @else
@@ -234,7 +223,7 @@
                 }
                 updateButtonState();
             });
-         
+
             $('button.reconcile-entries').click(function() {
                 // Reconcile entries
                 if (!confirm('Confirm Reconcile Entries')) {
@@ -275,23 +264,21 @@
                     }
                 });
             });
-            // Calculate and set balance for each row
-            var $balance = 0;
-            $('#table-entries tbody tr').each(function() {
-                var debit = Number.parseFloat(
-                    $(this).find('td').eq(3).text().replace('--', '0')
-                    .replace(/,/g, '').replace('-', '').trim());
-                var credit = Number.parseFloat(
-                    $(this).find('td').eq(4).text().replace('--', '0')
-                    .replace(/,/g, '').replace('-', '').trim());
-
-                $balance += (credit - debit);
-                $(this).find('td').eq(5).text(formatter.format($balance.toFixed(2)).toString().replace(
-                    'GHS', ''));
+            $('#table-entries').on('draw.dt', function(e) {
+                var $balance = 0;
+                $('#table-entries tbody tr').each(function() {
+                    var debit = Number.parseFloat($(this).find('td').eq(3).text().replace('--', '0')
+                        .replace(/,/g, '').replace('-', '').trim());
+                    var credit = Number.parseFloat($(this).find('td').eq(4).text().replace('--',
+                            '0')
+                        .replace(/,/g, '').replace('-', '').trim());
+                    $balance += (credit - debit);
+                    $(this).find('td').eq(5).text(formatter.format($balance.toFixed(2)).toString()
+                        .replace(/^GHS/g, ''));
+                });
             });
 
             const ACCOUNTS_TABLE = new DataTable('#table-entries', {
-                // responsive: true,
                 order: [
                     // [6, 'asc']
                     false
@@ -306,11 +293,9 @@
                         orderable: false
                     }
                 ],
-                pageLength: 50,
-                // buttons: ['copy', 'excel', 'pdf', 'csv', 'print'],
+                pageLength: 100,
                 footerCallback: function(row, data, start, end, display) {
-                    var api = this.api(),
-                        data;
+                    var api = this.api();
                     var intVal = function(i) {
                         if (typeof i === 'string') {
                             return i.replace(/[\$,-]/g, '') * 1.00;
@@ -318,9 +303,6 @@
                             return i.toString().replace(/-/g, '') * 1.00;
                         }
                     };
-                    var total = api.column(5).data().reduce(function(a, b) {
-                        return intVal(a) + intVal(b);
-                    }, 0.00);
 
                     var debitTotal = api.column(3, {
                         page: 'current'
@@ -332,17 +314,18 @@
                     }).data().reduce(function(a, b) {
                         return intVal(a) + intVal(b);
                     }, 0.00);
-                    var balanceTotal = creditTotal - debitTotal;
-                    // = api.column(5, {
-                    //     page: 'current'
-                    // }).data().reduce(function(a, b) {
-                    //     return intVal(a) + intVal(b);
-                    // }, 0.00);
-                    $(api.column(3).footer()).addClass('text-danger fw-semibold d-inline-block').html(
+                    var balanceTotal = (creditTotal - debitTotal);
+                    $(api.column(3, {
+                        page: 'current'
+                    }).footer()).addClass('text-danger fw-semibold d-inline-block').html(
                         formatter.format(debitTotal));
-                    $(api.column(4).footer()).addClass('text-success fw-semibold')
+                    $(api.column(4, {
+                            page: 'current'
+                        }).footer()).addClass('text-success fw-semibold')
                         .html(formatter.format(creditTotal));
-                    $(api.column(5).footer()).addClass('fw-semibold')
+                    $(api.column(5, {
+                            page: 'current'
+                        }).footer()).addClass('fw-semibold')
                         .html(formatter.format(balanceTotal));
                 },
                 buttons: [{
