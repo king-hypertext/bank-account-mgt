@@ -50,15 +50,15 @@ class EntryController extends Controller
     public function store(int $location, StoreEntryRequest $request)
     {
         $account = AccountLocation::findOrFail($location)->accounts()->findOrFail($request->account);
-        $value_date = now()->parse($request->input('value_date'))->toDateString();
-        $date = now()->parse($request->input('date'))->toDateString();
+        $value_date = now()->parse($request->input('value_date'))->startOfDay();
+        $date = now()->parse($request->input('date'))->startOfDay();
         $account->entries()->create([
             'entry_type_id' => $request->entry_type,
             'description' => $request->description,
             'amount' => $request->amount,
-            'value_date' => $value_date ?? now(),
+            'value_date' => $value_date ?? now()->startOfDay(),
             'reference_number' => $request->reference_number,
-            'date' => $date ?? now(),
+            'date' => $date ?? now()->startOfDay(),
         ]);
         $routeName = $request->has('exist') ? 'entries.index' : 'entries.create';
         return redirect()->route($routeName, $location)->with('success', 'Entry created successfully');

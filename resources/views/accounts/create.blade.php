@@ -125,7 +125,7 @@
                 <fieldset class="row mb-3">
                     <label for="created_at" class="col-form-label text-uppercase col-sm-2 pt-0">date</label>
                     <div class="col-sm-10">
-                        <input required type="date" value="{{ now()->format('d/m/Y') }}"
+                        <input required type="date" value="{{ now()->format('Y-m-d') }}"
                             class="form-control @error('created_at') is-invalid @enderror" name="created_at" id="created_at"
                             placeholder="" />
                         @error('created_at')

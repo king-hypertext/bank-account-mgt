@@ -114,8 +114,7 @@
                                 <tr
                                     class="border-bottom table-{{ $entry->is_reconciled ? 'secondary' : '' }} border-{{ $entry->entryType->type === 'debit' ? 'danger' : 'success' }}">
                                     <td>{{ $entry->reference_number }}</td>
-                                    <td>{{ $entry->description }}</td>
-                                    <td class="text-nowrap">{{ Carbon::parse($entry->created_at)->format('d-M-Y') }}
+                                    <td class="fw-medium text-truncate text-lowercase" style="max-width: 50px;" title="{{ $entry->description }}" data-mdb-tooltip-init>{{ $entry->description }}</td>                                    <td class="text-nowrap">{{ Carbon::parse($entry->date)->format('d-M-Y') }}
                                     </td>
                                     <td class="text-nowrap">{{ Carbon::parse($entry->value_date)->format('d-M-Y') }}
                                     </td>

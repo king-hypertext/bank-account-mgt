@@ -218,7 +218,7 @@ class AccountController extends Controller
         $url = redirect()->route('account.home', $location)->with('success', 'Account restored successfully')->getTargetUrl();
         return response()->json(['success' => true, 'url' => $url]);
     }
-    public function generateStatement(int $location, int $account_id, Request $request)
+    public function generateStatement(int $location, Account $account, Request $request)
     {
         // dd($request->all());
         // if (!$request->start_date && !$request->end_date) {
@@ -228,10 +228,10 @@ class AccountController extends Controller
         $endDate = now()->parse($request->end_date)->format('Y-m-d');
         // $startDate = now();
         // $endDate = now();
-        $account = Account::findOrFail($account_id);
+        // $account = Account::query()->find($account_id);
         $statements = $account->entries()->whereBetween('value_date', [$startDate, $endDate])->where('is_reconciled', true)->get();
         if ($statements->isEmpty()) {
-            return redirect()->route('account.show', [$location, $account_id, 'tab' => 'reports-tab'])->with('error', 'No statements found for the specified date range');
+            return redirect()->route('account.show', [$location, $account->id, 'tab' => 'reports-tab'])->with('error', 'No statements found for the specified date range');
         }
         $totalDebit = $statements->filter(function ($entry) {
             return $entry->entryType->type === 'debit'; // Assuming entry_type_id 2 is for debits
@@ -240,6 +240,7 @@ class AccountController extends Controller
         $totalCredit = $statements->filter(function ($entry) {
             return $entry->entryType->type === 'credit'; // Assuming entry_type_id other than 2 is for credits
         })->sum('amount') ?? 0;
+        
         // return view('pdf.statement', compact('statements', 'account', 'startDate', 'endDate', 'totalCredit', 'totalDebit'));
 
         $pdf = Pdf::loadView('pdf.statement', compact('statements', 'account', 'startDate', 'endDate', 'totalCredit', 'totalDebit'));

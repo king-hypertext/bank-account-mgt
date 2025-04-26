@@ -25,9 +25,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('l/store', [AppController::class, 'storeLocation'])->name('l.store');
     Route::prefix('l/{location}')->group(function () {
         Route::get('/', [AccountController::class, 'index'])->name('account.home');
-        Route::post('account/{id}/generate-statement', [AccountController::class, 'generateStatement'])->name('account.generateStatement');
-        Route::resource('account', AccountController::class);
+        Route::post('account/{account}/generate-statement', [AccountController::class, 'generateStatement'])->name('account.generateStatement');
         Route::post('account/restore/{account}', [AccountController::class, 'restore'])->name('account.restore');
+        Route::resource('account', AccountController::class);
         Route::resource('entries', EntryController::class);
         Route::delete('delete-entries', [EntryController::class, 'destroy'])->name('entries.delete');
         Route::resource('transfers', TransferController::class);

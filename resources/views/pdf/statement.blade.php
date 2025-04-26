@@ -53,7 +53,7 @@
         }
 
         .page-break {
-            page-break-after: always;
+            page-break-after: auto;
         }
     </style>
 </head>
@@ -87,15 +87,10 @@
                 @endphp
                 @forelse ($statements as $statement)
                     @php
-                        if ($statement->entry_type_id == 'debit') {
-                            // Assuming entry_type_id 2 is for debits
-                            $balance -= $statement->amount;
-                            $debit = $statement->amount;
-                            $credit = '';
-                        } else {
+                        if ($statement->entry_type_id === 1) {
                             $balance += $statement->amount;
-                            $debit = '';
-                            $credit = $statement->amount;
+                        } else {
+                            $balance -= $statement->amount;
                         }
                     @endphp
                     <tr>

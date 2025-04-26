@@ -163,7 +163,7 @@
 </style>
 
 <body>
-    <div class="loader"></div>
+    {{-- <div class="loader"></div> --}}
     @include('layout.nav')
     <div class="container-fluid">
 
